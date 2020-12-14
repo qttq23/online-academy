@@ -24,23 +24,38 @@ async function getById(collectionName, id) {
 async function create(collectionName, item) {
 
     const collection = await db.getCollection(collectionName)
-    return await collection.insertOne(item)
+
+    let result = await collection.insertOne(item)
+    if (result.insertedCount <= 0) {
+        return null
+    }
+    return result.insertedId
 }
 
 // modifiedCount
-async function edit(collectionName, id, item) {
+async function update(collectionName, id, item) {
     const collection = await db.getCollection(collectionName)
+
     let updateDocument = {
-    	$set: item
+        $set: item
     }
-    return await collection.updateOne({ '_id': new ObjectID(id) }, updateDocument)
+    let result = await collection.updateOne({ '_id': new ObjectID(id) }, updateDocument)
+    if (result.modifiedCount <= 0) {
+        return null
+    }
+    return id
 }
 
 // return number of deleted rows
 // deletedCount
 async function remove(collectionName, id) {
     const collection = await db.getCollection(collectionName)
-    return await collection.deleteOne({ '_id': new ObjectID(id) })
+
+    let result = await collection.deleteOne({ '_id': new ObjectID(id) })
+    if (result.deletedCount <= 0) {
+        return null
+    }
+    return id
 }
 
-module.exports = { getAll, getById, create, edit, remove }
+module.exports = { getAll, getById, create, update, remove }
