@@ -1,0 +1,6 @@
+{
+
+
+	"connectionString": "mongodb+srv://general:general@cluster0.ttw4e.mongodb.net/test?retryWrites=true&w=majority",
+	"port": 3000
+}
