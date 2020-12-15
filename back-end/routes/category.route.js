@@ -2,7 +2,6 @@ const router = require('express').Router()
 const categoryDao = require('../dao/category.dao.js')
 const validation = require('../middlewares/validation.mdw.js')
 
-
 module.exports = router
 
 router.get('/', async function(req, res) {
@@ -16,9 +15,11 @@ router.get('/', async function(req, res) {
 
 })
 
-router.get('/:id', async function(req, res) {
+router.get('/:id', validation.checkId, async function(req, res) {
 
-    const list = await categoryDao.getById(req.params.id)
+    let id = req.params.id 
+
+    const list = await categoryDao.getById(id)
     console.log(list)
 
     res.status(200).json({
@@ -51,7 +52,7 @@ router.post('/', validation.validate(categoryDao.schemaCreate), async function(r
 //     id: "",
 //     item: {x: 1, y: "dskf"}
 // }
-router.put('/:id', validation.validate(categoryDao.schemaUpdate), async function(req, res) {
+router.put('/:id', validation.checkId, validation.validate(categoryDao.schemaUpdate), async function(req, res) {
 
     console.log(req.params.id)
     console.log(req.body)
@@ -68,7 +69,7 @@ router.put('/:id', validation.validate(categoryDao.schemaUpdate), async function
 })
 
 
-router.delete('/:id', async function(req, res) {
+router.delete('/:id', validation.checkId, async function(req, res) {
 
     console.log(req.params.id)
 

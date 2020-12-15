@@ -43,7 +43,7 @@ async function getCollection(collectionName) {
 }
 
 
-
+// auto connect when required
 var connectPromise = connect()
 
 module.exports = { getCollection }

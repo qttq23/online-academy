@@ -40,6 +40,7 @@ async function update(collectionName, id, item) {
         $set: item
     }
     let result = await collection.updateOne({ '_id': new ObjectID(id) }, updateDocument)
+    console.log(result)
     if (result.modifiedCount <= 0) {
         return null
     }
@@ -58,4 +59,10 @@ async function remove(collectionName, id) {
     return id
 }
 
-module.exports = { getAll, getById, create, update, remove }
+async function aggregate(collectionName, listStages) {
+    const collection = await db.getCollection(collectionName)
+    const cursor = await collection.aggregate(listStages)
+    return await cursor.toArray()
+}
+
+module.exports = { getAll, getById, create, update, remove, aggregate }
