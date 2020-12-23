@@ -1,0 +1,27 @@
+.author {
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    font-weight: 400;
+    line-height: 1.5;
+    letter-spacing: 0.00938em;
+    color: rgba(0, 0, 0, 0.54);
+}
+
+.text-in-col {
+    margin: 7.5px 0px 0px 0px;
+    padding: 0;
+}
+
+.title {
+    color: black;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.price {
+    color: #3c3b37;
+    font-weight: 700;
+    font-size: 16px;
+    margin: 0;
+    padding: 0;
+}
+

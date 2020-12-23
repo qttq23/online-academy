@@ -1,20 +1,10 @@
 import React from 'react';
+import './style.css'
 
 const Footer = () => {
 
-    const mystyle = {
-        backgroundColor: "#005580",
-        padding: "10px 0px",
-        fontFamily: "Arial",
-        color: "white",
-        textAlign: "center",
-        position: "fixed",
-        bottom: "0",
-        width: "100%",
-    };
-
     return (
-        <div style={mystyle}>
+        <div className="fixed-bottom footer">
             <p>Copyright &copy; WNC 17CLC-KTPM</p>
         </div>
     )

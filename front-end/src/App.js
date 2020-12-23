@@ -1,9 +1,6 @@
-import './App.css';
-import Footer from './Footer/Footer';
-import Header from './Header/Header';
-import Login from './Login/Login';
-import Register from './Register/Register';
-
+import "./App.css";
+import Footer from "./Footer/Footer";
+import Header from "./Header/Header";
 
 function App() {
   return (
@@ -13,6 +10,5 @@ function App() {
     </div>
   );
 }
-
 
 export default App;
