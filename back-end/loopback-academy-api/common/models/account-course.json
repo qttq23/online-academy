@@ -1,0 +1,42 @@
+{
+  "name": "accountCourse",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "accountId": {
+      "type": "string",
+      "required": true,
+      "mongodb": {
+        "dataType": "ObjectId"
+      }
+    },
+    "courseId": {
+      "type": "string",
+      "required": true,
+      "mongodb": {
+        "dataType": "ObjectId"
+      }
+    },
+    "registerAt": {
+      "type": "date"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "account": {
+      "type": "belongsTo",
+      "model": "account",
+      "foreignKey": ""
+    },
+    "course": {
+      "type": "belongsTo",
+      "model": "course",
+      "foreignKey": ""
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

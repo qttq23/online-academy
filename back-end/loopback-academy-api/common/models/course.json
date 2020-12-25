@@ -1,0 +1,76 @@
+{
+  "name": "course",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "categoryId": {
+      "type": "string",
+      "required": true,
+      "mongodb": {
+        "dataType": "ObjectId"
+      }
+    },
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "teacherId": {
+      "type": "string",
+      "required": true,
+      "mongodb": {
+        "dataType": "ObjectId"
+      }
+    },
+    "numView": {
+      "type": "number",
+      "required": true,
+      "default": 0
+    },
+    "imageUrl": {
+      "type": "string",
+      "required": true
+    },
+    "price": {
+      "type": "number",
+      "required": true
+    },
+    "saleOffPercent": {
+      "type": "number"
+    },
+    "shortDescription": {
+      "type": "string",
+      "required": true
+    },
+    "longDescription": {
+      "type": "string",
+      "required": true
+    },
+    "createdAt": {
+      "type": "date"
+    },
+    "updatedAt": {
+      "type": "date"
+    },
+    "isCompleted": {
+      "type": "boolean"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "category": {
+      "type": "belongsTo",
+      "model": "category",
+      "foreignKey": ""
+    },
+    "teacher": {
+      "type": "belongsTo",
+      "model": "account",
+      "foreignKey": ""
+    }
+  },
+  "acls": [],
+  "methods": {}
+}
