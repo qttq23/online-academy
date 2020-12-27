@@ -69,6 +69,11 @@
       "type": "belongsTo",
       "model": "account",
       "foreignKey": ""
+    },
+    "chapters": {
+      "type": "hasMany",
+      "model": "chapter",
+      "foreignKey": ""
     }
   },
   "acls": [],

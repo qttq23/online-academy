@@ -55,5 +55,29 @@
   "auth": {
     "dataSource": null,
     "public": true
+  },
+  "feedback": {
+    "dataSource": "mongodbDs",
+    "public": true
+  },
+  "chapter": {
+    "dataSource": "mongodbDs",
+    "public": true
+  },
+  "video": {
+    "dataSource": "mongodbDs",
+    "public": true
+  },
+  "watchList": {
+    "dataSource": "mongodbDs",
+    "public": true
+  },
+  "seenVideo": {
+    "dataSource": "mongodbDs",
+    "public": true
+  },
+  "myConfig": {
+    "dataSource": null,
+    "public": true
   }
 }

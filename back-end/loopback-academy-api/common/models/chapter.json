@@ -1,0 +1,37 @@
+{
+  "name": "chapter",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "courseId": {
+      "type": "string",
+      "required": true
+    },
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "order": {
+      "type": "number",
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {
+    "videos": {
+      "type": "hasMany",
+      "model": "video",
+      "foreignKey": ""
+    },
+    "course": {
+      "type": "belongsTo",
+      "model": "course",
+      "foreignKey": ""
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

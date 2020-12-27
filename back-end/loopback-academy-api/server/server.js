@@ -36,6 +36,8 @@ async function main() {
 
     // add remote method for auth route
     await require('./routes/auth.js')
+    await require('./routes/chapter.js')
+    await require('./routes/video.js')
 
     // start the server if `$ node server.js`
     if (require.main === module)

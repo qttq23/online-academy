@@ -26,7 +26,8 @@
       "prototype.patchAttributes": true,
       "deleteById": true,
       "login": true,
-      "register": true
+      "register": true,
+      "getDbConfig": true
     }
   }
 }

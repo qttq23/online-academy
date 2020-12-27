@@ -1,0 +1,37 @@
+{
+  "name": "seenVideo",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "accountId": {
+      "type": "string",
+      "required": true
+    },
+    "videoId": {
+      "type": "string",
+      "required": true
+    },
+    "pausedAt": {
+      "type": "string",
+      "default": "00:00:00"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "account": {
+      "type": "belongsTo",
+      "model": "account",
+      "foreignKey": ""
+    },
+    "video": {
+      "type": "belongsTo",
+      "model": "video",
+      "foreignKey": ""
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

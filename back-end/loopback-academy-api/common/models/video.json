@@ -1,0 +1,22 @@
+{
+  "name": "video",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "chapterId": {
+      "type": "string",
+      "required": true
+    },
+    "videoUrl": {
+      "type": "string",
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}
