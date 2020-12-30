@@ -39,6 +39,10 @@ async function main() {
     await require('./routes/chapter.js')
     await require('./routes/video.js')
 
+    // connect db for custom.js
+    await require('./utils/myModel.js').connect()
+    await require('./routes/custom.js')
+
     // start the server if `$ node server.js`
     if (require.main === module)
       app.start();

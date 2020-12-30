@@ -79,5 +79,9 @@
   "myConfig": {
     "dataSource": null,
     "public": true
+  },
+  "custom": {
+    "dataSource": null,
+    "public": true
   }
 }

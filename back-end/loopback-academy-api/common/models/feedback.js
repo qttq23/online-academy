@@ -35,6 +35,11 @@ module.exports = function(Feedback) {
       return
     }
 
+    // insert current date
+    if (context.methodString == 'feedback.create') {
+      context.req.body.createdAt = new Date()
+    }
+
     // check access token
     try {
       const token = context.req.get('x-access-token')

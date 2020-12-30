@@ -44,6 +44,16 @@ module.exports = function(Course) {
       return
     }
 
+    // insert current date
+    if (context.methodString == 'course.create') {
+      context.req.body.createdAt = new Date()
+      context.req.body.updatedAt = new Date()
+    }
+    if (context.methodString == 'course.prototype.patchAttributes') {
+      context.req.body.updatedAt = new Date()
+    }
+
+
     // check access token
     try {
       const token = context.req.get('x-access-token')

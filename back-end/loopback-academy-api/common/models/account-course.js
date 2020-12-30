@@ -22,6 +22,11 @@ module.exports = function(Accountcourse) {
       return
     }
 
+    // insert current date
+    if (context.methodString == 'accountCourse.create') {
+      context.req.body.registeredAt = new Date()
+    }
+
     // check access token
     try {
       const token = context.req.get('x-access-token')
@@ -37,9 +42,9 @@ module.exports = function(Accountcourse) {
       // can create
       if (context.methodString == 'accountCourse.create') {
 
-      	console.log('create')
-      	console.log(context.req.body.accountId)
-      	console.log(decoded.userId)
+        console.log('create')
+        console.log(context.req.body.accountId)
+        console.log(decoded.userId)
         if (context.req.body.accountId == decoded.userId) {
 
           return // pass
@@ -51,7 +56,7 @@ module.exports = function(Accountcourse) {
       // cannot update
       if (context.methodString == 'accountCourse.deleteById') {
 
-      	let result = await Accountcourse.findById(context.req.params.id)
+        let result = await Accountcourse.findById(context.req.params.id)
         if (result.accountId == decoded.userId) {
           return // pass
         }

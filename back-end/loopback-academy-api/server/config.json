@@ -2,23 +2,28 @@
   "restApiRoot": "/api",
   "host": "0.0.0.0",
   "port": 9999,
-  "remoting": {
+  "remoting":
+  {
     "context": false,
-    "rest": {
+    "rest":
+    {
       "handleErrors": false,
       "normalizeHttpPath": false,
       "xml": false
     },
-    "json": {
+    "json":
+    {
       "strict": false,
       "limit": "100kb"
     },
-    "urlencoded": {
+    "urlencoded":
+    {
       "extended": true,
       "limit": "100kb"
     },
     "cors": false,
-    "sharedMethods": {
+    "sharedMethods":
+    {
       "*": false,
       "find": true,
       "findById": true,
@@ -27,7 +32,17 @@
       "deleteById": true,
       "login": true,
       "register": true,
-      "getDbConfig": true
+      "getDbConfig": true,
+      "getMostRegisteredCourses": true,
+      "getMostViewedCourses": true,
+      "getNewestCourses": true,
+      "getMostRegisteredCategories": true,
+      "updateNumView": true,
+      "getCourseByCategoryTopic": true,
+      "getCourseByCategoryId": true,
+      "searchCourse": true,
+      "getCourseById": true,
+      "getRelatedCourses": true
     }
   }
 }
