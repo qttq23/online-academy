@@ -51,7 +51,7 @@ Auth.login = async function(email, password, context, callback) {
 
   // check if active
   if (user.activeCode != "") {
-    context.res.status(400)
+    context.res.status(444)
     return { 'error': 'authentication failed: account has not activated' }
   }
 
@@ -160,7 +160,7 @@ Auth.register = async function(type, name, email, password, loginType, context, 
 
   // send OTP to email
   let resultSend = await utils.sendEmail(
-    config.emailCredentials, 
+    config.emailCredentials,
     result.email,
     'Online Academy - Account activation',
     'Your activate code is: ' + result.activeCode
@@ -292,7 +292,7 @@ Auth.active = async function(email, activeCode, context, callback) {
 
   // update db: set active code empty
   let myUser = await model.findById(user.id)
-  let result = await myUser.patchAttributes({"activeCode": ""})
+  let result = await myUser.patchAttributes({ "activeCode": "" })
 
   context.res.status(200)
   return result

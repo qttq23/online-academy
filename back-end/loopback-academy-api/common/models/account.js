@@ -25,6 +25,7 @@ module.exports = function(Account) {
       return
     }
 
+
     // check access token
     try {
       const token = context.req.get('x-access-token')
@@ -38,8 +39,19 @@ module.exports = function(Account) {
       // user is now teacher or student
       // only allow update themselves
       if (context.methodString == 'account.prototype.patchAttributes' &&
-        context.req.params.id == decoded.userId
+        context.req.params.id == decoded.userId &&
+        context.req.body.hasOwnProperty('type') == false &&
+        context.req.body.hasOwnProperty('password') == false &&
+        context.req.body.hasOwnProperty('loginType') == false &&
+        context.req.body.hasOwnProperty('refreshToken') == false &&
+        context.req.body.hasOwnProperty('activeCode') == false
       ) {
+
+        return // pass
+      }
+
+      if (context.methodString == 'account.changePassword' &&
+        context.req.params.id == decoded.userId){
         return // pass
       }
 
@@ -145,10 +157,10 @@ function addMethod(Account) {
     await client.connect();
     const database = client.db('onlineAcademy');
     const collection = database.collection('account');
-    const cursor = await collection.find({email: email})
+    const cursor = await collection.find({ email: email })
     const result = await cursor.toArray();
 
-    if(!result || result.length == 0){
+    if (!result || result.length == 0) {
       return null
     }
 

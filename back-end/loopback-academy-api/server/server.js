@@ -38,6 +38,9 @@ async function main() {
     await require('./routes/auth.js')
     await require('./routes/chapter.js')
     await require('./routes/video.js')
+    await require('./routes/account.js')
+    await require('./routes/feedback.js')
+    await require('./routes/category.js')
 
     // connect db for custom.js
     await require('./utils/myModel.js').connect()

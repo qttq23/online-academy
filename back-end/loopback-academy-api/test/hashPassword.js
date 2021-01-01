@@ -1,5 +1,5 @@
 const utils = require('../server/utils/utils.js')
-utils.hash('leloi')
+utils.hash('thang')
     .then((hashed) => {
         console.log(hashed)
     })
