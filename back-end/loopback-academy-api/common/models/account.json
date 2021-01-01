@@ -38,6 +38,10 @@
     "imageUrl": {
       "type": "string",
       "default": "/image/"
+    },
+    "activeCode": {
+      "type": "string",
+      "default": ""
     }
   },
   "validations": [],

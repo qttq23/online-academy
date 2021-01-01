@@ -49,6 +49,12 @@ Auth.login = async function(email, password, context, callback) {
     return { 'error': 'authentication failed: wrong password' }
   }
 
+  // check if active
+  if (user.activeCode != "") {
+    context.res.status(400)
+    return { 'error': 'authentication failed: account has not activated' }
+  }
+
   // generate access token, refresh token
   let accessToken = await utils.signJWT({
       userId: user.id,
@@ -71,6 +77,11 @@ Auth.login = async function(email, password, context, callback) {
   }
 
 }
+
+
+
+
+
 
 
 // declare
@@ -135,6 +146,10 @@ Auth.register = async function(type, name, email, password, loginType, context, 
   // hash password
   user.password = await utils.hash(user.password)
 
+  // generate OTP code
+  user.activeCode = utils.randomString(config.otpLength)
+
+
   // save to db
   let result = await model.create(user)
   console.log(result)
@@ -143,10 +158,22 @@ Auth.register = async function(type, name, email, password, loginType, context, 
     return { 'error': 'register failed' }
   }
 
+  // send OTP to email
+  let resultSend = await utils.sendEmail(
+    config.emailCredentials, 
+    result.email,
+    'Online Academy - Account activation',
+    'Your activate code is: ' + result.activeCode
+  )
+
   // result.password = "" // auto remove when hook 'loaded'
+  result.activeCode = ""
   context.res.status(201)
   return result
 }
+
+
+
 
 
 
@@ -214,4 +241,59 @@ Auth.refreshToken = async function(accessToken, refreshToken, context, callback)
     refreshToken
   }
 
+}
+
+
+
+
+
+// declare
+Auth.remoteMethod(
+  'active', {
+    http: { path: '/active', verb: 'post' },
+    description: '(OTP) active new account after registration',
+    accepts: [
+      { arg: 'email', type: 'string', required: true, http: { source: 'form' } },
+      { arg: 'activeCode', type: 'string', required: true, http: { source: 'form' } },
+      { arg: 'context', type: 'object', http: { source: 'context' }, documented: false }
+    ],
+    returns: { root: true, type: 'object' }
+  }
+);
+
+
+// middleware
+Auth.beforeRemote('active', async function(context, affectedInstance, next) {
+
+  console.log('before active')
+
+  return // pass
+
+});
+
+// handler
+Auth.active = async function(email, activeCode, context, callback) {
+
+  console.log('Auth.js: active')
+  console.log(context.req.body)
+
+
+  let user = await model.findByEmail(email)
+  if (!user) {
+    context.res.status(400)
+    return { 'error': 'authentication failed: email not found' }
+  }
+
+  // check active code
+  if (user.activeCode == "" || user.activeCode != activeCode) {
+    context.res.status(400)
+    return { 'error': 'authentication failed: active code not correct' }
+  }
+
+  // update db: set active code empty
+  let myUser = await model.findById(user.id)
+  let result = await myUser.patchAttributes({"activeCode": ""})
+
+  context.res.status(200)
+  return result
 }
