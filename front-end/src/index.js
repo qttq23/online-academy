@@ -9,6 +9,7 @@ import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import Login from "./Login/Login";
 import Register from "./Register/Register";
 import Homepage from "./Homepage/Homepage";
+import CourseDetail from "./CourseDetail/CourseDetail"
 
 ReactDOM.render(
   <React.StrictMode>
@@ -17,6 +18,7 @@ ReactDOM.render(
       <Route exact path="/home" component={Homepage} />
       <Route exact path="/login" component={Login} />
       <Route exact path="/register" component={Register} />
+      <Route exact path="/courses/:id" component={CourseDetail} />
     </Router>
   </React.StrictMode>,
   document.getElementById("root")
