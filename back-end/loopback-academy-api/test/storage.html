@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title></title>
+</head>
+
+<body>
+  <h4>firebase2 - updated</h4>
+  <div>
+    <input type="text" id="myinput" />
+    <button onclick="authenticate()">authenticate</button>
+  </div>
+  <div>
+    <input type="file" id="myfile" />
+    <button onclick="upload()">upload</button>
+  </div>
+  <video id="myvideo" width="320" height="240" controls></video>
+  <img id="myimg" src="https://www.tibs.org.tw/images/default.jpg" width="500" height="600" alt="image from firebase storage"></img>
+  <br />
+  <!-- The core Firebase JS SDK is always required and must be listed first -->
+  <script src="https://www.gstatic.com/firebasejs/8.2.0/firebase-app.js"></script>
+  <!-- TODO: Add SDKs for Firebase products that you want to use
+        https://firebase.google.com/docs/web/setup#available-libraries -->
+  <script src="https://www.gstatic.com/firebasejs/8.2.0/firebase-storage.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-auth.js"></script>
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script>
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  var firebaseConfig = {
+    apiKey: "AIzaSyA4XATvhsSoi4QY9Ds8M3-w_1OdZcuiwQE",
+    authDomain: "online-academy-7bd60.firebaseapp.com",
+    projectId: "online-academy-7bd60",
+    storageBucket: "online-academy-7bd60.appspot.com",
+    messagingSenderId: "18041212094",
+    appId: "1:18041212094:web:b00b73b58bc31dce69a2ef"
+  };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+
+
+
+  // ---download
+  // Create a reference with an initial file path and name
+  var storage = firebase.storage().ref('');
+
+  function loadVideo() {
+    storage.child('course/5fd4ec944ec3a2471437e2c2/chapter/5fd6528de655e020bc479f46/1.mp4').getDownloadURL().then(function(url) {
+      // `url` is the download URL for 'images/stars.jpg'
+
+      console.log(url)
+
+      // Or inserted into an <img> element:
+      var img = document.getElementById('myvideo');
+      img.src = url;
+    }).catch(function(error) {
+      // Handle any errors
+    });
+  }
+  loadVideo()
+
+
+  function loadImage() {
+    storage.child('course/5fd4ec944ec3a2471437e2c2/image/johannes-plenio-U_BPsXzsHQQ-unsplash.jpg').getDownloadURL().then(function(url) {
+
+      console.log(url)
+
+      // Or inserted into an <img> element:
+      var img = document.getElementById('myimg');
+      img.src = url;
+    }).catch(function(error) {
+      // Handle any errors
+    });
+  }
+  loadImage()
+
+
+  // user clicks upload button
+  function upload() {
+    console.log('uploading...')
+    const file = document.getElementById('myfile').files[0];
+
+
+    // // Create the file metadata
+    // var metadata = {
+    //     contentType: 'image/jpeg'
+    // };
+
+    // Upload file and metadata to the object 'images/mountains.jpg'
+    var uploadTask = storage.child(
+      // 'course/5fd4ec944ec3a2471437e2c2/image/' + file.name
+      '/course/5fd4ec944ec3a2471437e2c2/chapter/5fd6528de655e020bc479f46/' + file.name
+    ).put(file);
+
+    // Listen for state changes, errors, and completion of the upload.
+    uploadTask.on(firebase.storage.TaskEvent.STATE_CHANGED, // or 'state_changed'
+      function(snapshot) {
+        // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+        var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        console.log('Upload is ' + progress + '% done');
+        switch (snapshot.state) {
+          case firebase.storage.TaskState.PAUSED: // or 'paused'
+            console.log('Upload is paused');
+            break;
+          case firebase.storage.TaskState.RUNNING: // or 'running'
+            console.log('Upload is running');
+            break;
+        }
+      },
+      function(error) {
+
+        window.alert(error)
+
+        // A full list of error codes is available at
+        // https://firebase.google.com/docs/storage/web/handle-errors
+        switch (error.code) {
+          case 'storage/unauthorized':
+            // User doesn't have permission to access the object
+            break;
+
+          case 'storage/canceled':
+            // User canceled the upload
+            break;
+
+          case 'storage/unknown':
+            // Unknown error occurred, inspect error.serverResponse
+            break;
+        }
+      },
+      function() {
+        console.log('done uploading')
+
+        // Upload completed successfully, now we can get the download URL
+        uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+          console.log('File available at: ' + downloadURL);
+
+          window.alert('file uploaded at: ', downloadURL)
+
+          // var img2 = document.getElementById('myimg');
+          // img2.src = downloadURL;
+        });
+      });
+  }
+
+
+
+
+  // user clicks  authenticate button
+  function authenticate() {
+
+    let token = document.getElementById('myinput').value;
+    firebase.auth().signInWithCustomToken(token)
+      .then((user) => {
+        // Signed in
+        // ...
+        console.log(user)
+        loadVideo()
+      })
+      .catch((error) => {
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        // ...
+        console.log(error)
+      })
+
+
+  }
+
+
+  // sign out when refresh or close tab
+  $(window).on('unload', function() {
+    signOut()
+  });
+
+  $(window).on('beforeunload', function() {
+    // your logic here
+    signOut()
+  });
+
+  function signOut() {
+    firebase.auth().signOut().then(function() {
+      // Sign-out successful.
+    }).catch(function(error) {
+      // An error happened.
+    });
+  }
+
+  </script>
+</body>
+
+</html>

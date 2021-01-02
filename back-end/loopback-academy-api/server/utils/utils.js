@@ -3,6 +3,14 @@ var jwt = require('jsonwebtoken')
 var randomstring = require("randomstring")
 var nodemailer = require('nodemailer')
 
+// firebase
+var admin = require("firebase-admin");
+var serviceAccount = require("../../online-academy-7bd60-firebase-adminsdk-xhcvv-b75a0e2b18.json");
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+
+
 module.exports = {
 
   hash: async (password) => {
@@ -105,6 +113,31 @@ module.exports = {
       });
 
     })
+
+
+  },
+
+  signJWTFirebase(uid, additionalClaims) {
+
+    return new Promise((resolve, reject) => {
+
+      admin
+        .auth()
+        .createCustomToken(uid, additionalClaims)
+        .then((customToken) => {
+
+          resolve(customToken)
+
+        })
+        .catch((error) => {
+          console.log('Error creating custom token:', error);
+
+          reject(error)
+        });
+
+    })
+
+
 
 
   },

@@ -13,6 +13,10 @@
     "videoUrl": {
       "type": "string",
       "required": true
+    },
+    "order": {
+      "type": "number",
+      "required": true
     }
   },
   "validations": [],

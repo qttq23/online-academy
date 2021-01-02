@@ -35,6 +35,7 @@ async function main() {
     if (err) throw err;
 
     // add remote method for auth route
+    require('./utils/utils.js')
     await require('./routes/auth.js')
     await require('./routes/chapter.js')
     await require('./routes/video.js')

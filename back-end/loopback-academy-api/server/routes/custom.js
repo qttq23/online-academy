@@ -1,8 +1,12 @@
 const custom = require('../server.js').models.custom
 const model = require('../utils/myModel.js')
+const accountCourseModel = require('../server.js').models.accountCourse
+const courseModel = require('../server.js').models.course
 
 const utils = require('../utils/utils.js')
 const config = require('../config.json')
+
+
 
 
 custom.disableRemoteMethodByName('find');
@@ -265,3 +269,265 @@ custom.getRelatedCourses = async function(courseId, numLimit) {
 
 
 
+// 2.1 
+// post /api/watchLists/
+// header: x-acess-token
+
+// 2.2
+// update: emai, hoten
+// patch /api/accounts/id
+
+// update: password
+// post /api/accounts/:id/newPassword
+
+
+// xem watchlist:
+// get /api/watchlists/?filter={"where": {"accountId": "5fd8ec51ca983a3740c1c711"} }
+
+
+// loai bo course khoi watchlist:
+// get /api/watchlists/?filter={"where":  {"and": [ {"accountId": "5fd8ec51ca983a3740c1c711"} ,{"courseId": "5fe5e7d8d2bf305f580862ec"}] }}
+
+// -> get id of watcthlist
+
+// delete /api/watchlists/id
+
+
+// xem register list:
+// get /api/accountCourses/?filter={"where": { "accountId": "5fd8ec51ca983a3740c1c711" } }
+
+// 2.3
+
+// tham gia:
+// post /api/accountCourse
+
+// luu trang thai video:
+// patch /api/seenvideos/id
+// {
+//   "pausedAt": ""
+// }
+
+
+// 2.4
+// post /api/feedbacks
+// *token*
+
+
+// 2.5
+// get video from firebase storage
+// get /api/storage/token
+// get video url: /api/videos/id
+// put url to a video element
+// .............implement front-end react?????
+
+
+// get preview
+// get video url: /api/videos/id with order = 1, 2, 3
+// ...................implement front-end react?????
+
+
+// 3.1
+// post /api/courses
+
+
+// post video to firebase storage
+// get /api/storage/token
+// resolve filename = num videos in chapter + 1
+// upload to storage, then update videoUrl in db
+// ................implement front-end react?????
+
+
+// 3.2 
+// cap nhat thong tin khoa hoc & danh dau hoan thanh:
+// patch /api/courses/:id
+
+
+// them & cap nhat chuong:
+// post /api/chapters
+
+
+// patch /api/chapters/id
+
+
+// 3.3
+// quan ly ho so ca nhan:
+// patch api/accounts/id
+// {
+//   "desciption": ""
+// }
+
+
+// xem danh sach khoa hoc giảng dạy:
+// get /api/courses/?filter={"where": {"teacherId": "sdfsdklfjsdl"}}
+
+
+
+// 4.1
+// /api/categories
+
+
+// 4.2
+// /api/courses
+
+// 4.3
+// /api/accounts
+
+// dang ky tai khoan cho teacher:
+// /api/auth/register
+
+
+// 5.1
+
+// login with google???
+// .................????????????
+
+
+// 6.2
+// sample data??????????
+// .............???????????????????/
+
+
+
+// declare
+custom.remoteMethod(
+  'getStorageToken', {
+    http: { path: '/storage/token', verb: 'get' },
+    description: 'get token to download/upload video based on your role. *include access token in header*',
+    accepts: [
+      { arg: 'context', type: 'object', http: { source: 'context' }, documented: false }
+    ],
+    returns: { root: true, type: 'Object' }
+  }
+);
+
+
+// handler
+custom.getStorageToken = async function(context) {
+
+  console.log("custom.js: getStorageToken: ")
+
+  // check access token
+  let decoded
+  try {
+    const token = context.req.get('x-access-token')
+    decoded = await utils.verifyJWT(token, "abcdef")
+
+  } catch (err) {
+    console.log(err)
+
+    context.res.status(400)
+    return { 'error': err }
+  }
+
+
+  // user now already logged in
+
+  let listName = 'empty'
+  let listCourseId = []
+  if (decoded.userType == config.custom.database.account.type.student) {
+
+    // get list of courses they studied
+    const listAccountCourses = await accountCourseModel.find({ "where": { "accountId": decoded.userId } })
+    listCourseId = listAccountCourses.map(function(item) {
+      return item.courseId
+    })
+    listName = 'listStudy'
+
+  } else if (decoded.userType == config.custom.database.account.type.teacher) {
+
+    // get list of courses they taught
+    const listCourses = await courseModel.find({ "where": { "teacherId": decoded.userId } })
+    listCourseId = listCourses.map(function(item) {
+      return item.id
+    })
+    listName = 'listTeach'
+  }
+
+  console.log(listCourseId)
+
+  // create firebase token
+  const uid = decoded.userId;
+  const additionalClaims = {}
+  additionalClaims[listName] = listCourseId
+
+  try {
+    const readToken = await utils.signJWTFirebase(uid, additionalClaims)
+
+    // Send token back to client
+    context.res.status(200)
+    return { readToken }
+
+  } catch (error) {
+
+    context.res.status(400)
+    return { 'error': error }
+  }
+
+}
+
+
+
+
+// // declare
+// custom.remoteMethod(
+//   'getWriteToken', {
+//     http: { path: '/token/write', verb: 'get' },
+//     description: 'get token to upload video. *include access token in header*',
+//     accepts: [
+//       { arg: 'context', type: 'object', http: { source: 'context' }, documented: false }
+//     ],
+//     returns: { root: true, type: 'Object' }
+//   }
+// );
+
+
+// // handler
+// custom.getWriteToken = async function(context) {
+
+//   console.log("custom.js: getWriteToken: ")
+
+//   // check access token
+//   let decoded
+//   try {
+//     const token = context.req.get('x-access-token')
+//     decoded = await utils.verifyJWT(token, "abcdef")
+
+//   } catch (err) {
+//     console.log(err)
+
+//     context.res.status(400)
+//     return { 'error': err }
+//   }
+
+
+//   // user now already logged in
+
+//   // get list of courses they taught
+//   const listCourses = await courseModel.find({ "where": { "teacherId": decoded.userId } })
+//   const listCourseId = listCourses.map(function(item) {
+//     return item.id
+//   })
+//   console.log(listCourseId)
+
+
+
+//   // create firebase token
+//   const uid = decoded.userId;
+//   const additionalClaims = {
+//     "listTeach": listCourseId
+//   };
+
+//   try {
+//     const writeToken = await utils.signJWTFirebase(uid, additionalClaims)
+
+//     // Send token back to client
+//     context.res.status(200)
+//     return { writeToken }
+
+//   } catch (error) {
+
+//     context.res.status(400)
+//     return { 'error': error }
+//   }
+
+// }
