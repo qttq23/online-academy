@@ -2,12 +2,6 @@ import {BottomNavigation, Grid, makeStyles, Typography} from "@material-ui/core"
 
 const useStyles = makeStyles((theme) => ({
     footer: {
-        marginTop: "1rem",
-        padding: "1rem",
-        position: "fixed",
-        bottom: "0",
-        left: "0",
-        width: "100%",
         backgroundColor: "#333",
         color: "#FFF"
     },
