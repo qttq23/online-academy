@@ -1,4 +1,4 @@
-import {Grid, makeStyles, Typography} from "@material-ui/core";
+import {BottomNavigation, Grid, makeStyles, Typography} from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
     footer: {
@@ -17,16 +17,18 @@ export default function Footer() {
     const classes = useStyles();
 
     return (
-        <Grid
-            className={classes.footer}
-            container
-            direction="row"
-            justify="center"
-            alignItems="center"
-        >
-            <Typography>
-                HCMUS 2020 WNC
-            </Typography>
-        </Grid>
+        <BottomNavigation>
+            <Grid
+                className={classes.footer}
+                container
+                direction="row"
+                justify="center"
+                alignItems="center"
+            >
+                <Typography>
+                    HCMUS 2020 WNC
+                </Typography>
+            </Grid>
+        </BottomNavigation>
     )
 }

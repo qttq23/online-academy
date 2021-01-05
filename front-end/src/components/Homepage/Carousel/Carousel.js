@@ -89,10 +89,10 @@ const items = [
         contentPosition: "left",
         Items: [
             {
-                Image: "https://miro.medium.com/max/750/1*zJkojKNpFD9HFGPJLCs15Q.jpeg"
+                Image: "https://media3.giphy.com/media/L8K62iTDkzGX6/giphy.gif"
             },
             {
-                Image: "https://akm-img-a-in.tosshub.com/indiatoday/images/story/201706/web-development-647_062317054646.jpg"
+                Image: "https://i.pinimg.com/originals/1e/dd/47/1edd4798851736ee98ac2ae083e9ee82.gif"
             }
         ]
     },
