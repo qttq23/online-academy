@@ -4,20 +4,10 @@ import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
-import Login from "./Login/Login";
-import Register from "./Register/Register";
-import Homepage from "./Homepage/Homepage";
 
 ReactDOM.render(
   <React.StrictMode>
-    <Router>
-      <App />
-      <Route exact path="/home" component={Homepage} />
-      <Route exact path="/login" component={Login} />
-      <Route exact path="/register" component={Register} />
-    </Router>
+   <App/>
   </React.StrictMode>,
   document.getElementById("root")
 );
