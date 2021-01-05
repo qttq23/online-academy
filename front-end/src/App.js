@@ -7,6 +7,7 @@ import Footer from "./components/Footer/Footer";
 import Navbar from "./components/Navbar/Navbar";
 import Login from "./components/Login/Login";
 import Register from "./components/Register/Register";
+import Homepage from "./components/Homepage/Homepage";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -34,6 +35,9 @@ const App = ({location}) => {
                     </Grid>
                     <Grid item className={classes.main}>
                         <Switch>
+                            <Route exact path="/">
+                                <Homepage />
+                            </Route>
                             <Route exact path="/login">
                                 <Login />
                             </Route>
