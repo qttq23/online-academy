@@ -1,21 +1,21 @@
-import React from "react";
-import {BrowserRouter as Router, Route, Switch} from "react-router-dom";
-import {Grid} from "@material-ui/core";
-import Header from "../Header";
-import Login from "../Login";
-import Signup from "../Signup";
-import Footer from "../Footer";
-import {makeStyles} from "@material-ui/core/styles";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import AdminLayout from "../../layouts/AdminLayout";
-import Users from "../Admin/Users";
-import Categories from "../Categories";
-import CourseDetail from "../CourseDetail";
-import Profile from "../Profile";
-import UpdateProfile from "../UpdateProfile";
-import AddCourse from "../AddCourse";
-import VideoPlayer from "../VideoPlayer";
-import Homepage from "../Home/Homepage";
+import React from "react"
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom"
+import { Grid } from "@material-ui/core"
+import Header from "../Header"
+import SignIn from "../SignIn"
+import SignUp from "../SignUp"
+import Footer from "../Footer"
+import { makeStyles } from "@material-ui/core/styles"
+import CssBaseline from "@material-ui/core/CssBaseline"
+import AdminLayout from "../../layouts/AdminLayout"
+import Users from "../Admin/Users"
+import Categories from "../Categories"
+import CourseDetail from "../CourseDetail"
+import Profile from "../Profile"
+import UpdateProfile from "../UpdateProfile"
+import AddCourse from "../AddCourse"
+import VideoPlayer from "../VideoPlayer"
+import Homepage from "../Home/Homepage"
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -37,10 +37,10 @@ const useStyles = makeStyles((theme) => ({
     //alignSelf: "flex-end",
     //marginTop: "auto",
   },
-}));
+}))
 
 const App = ({ location }) => {
-  const classes = useStyles();
+  const classes = useStyles()
 
   return (
     <div>
@@ -64,11 +64,11 @@ const App = ({ location }) => {
                   </Switch>
                 </AdminLayout>
               </Route>
-              <Route exact path="/login">
-                <Login />
+              <Route exact path="/signin">
+                <SignIn />
               </Route>
               <Route exact path="/signup">
-                <Signup />
+                <SignUp />
               </Route>
               <Route exact path="/categories" >
                 <Categories />
@@ -101,7 +101,7 @@ const App = ({ location }) => {
         </Grid>
       </Router>
     </div>
-  );
-};
+  )
+}
 
-export default App;
+export default App
