@@ -89,8 +89,8 @@
 
     // Upload file and metadata to the object 'images/mountains.jpg'
     var uploadTask = storage.child(
-      // 'course/5fd4ec944ec3a2471437e2c2/image/' + file.name
-      '/course/5fd4ec944ec3a2471437e2c2/chapter/5fd6528de655e020bc479f46/' + file.name
+      'course/5fd4ec944ec3a2471437e2c2/image/' + file.name
+      // '/course/5fd4ec944ec3a2471437e2c2/chapter/5fd6528de655e020bc479f46/' + file.name
     ).put(file);
 
     // Listen for state changes, errors, and completion of the upload.

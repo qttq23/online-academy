@@ -134,7 +134,9 @@ async function getMostRegisteredCourses(order /*1: asc, -1: desc*/ , numCourse, 
         },
 
 
-
+        {
+            $addFields: { "id": "$_id"}
+        }
 
     ]);
 
@@ -273,7 +275,9 @@ async function getMostViewedCourses(order /*1: asc, -1: desc*/ , numCourse, time
         },
 
 
-
+        {
+            $addFields: { "id": "$_id"}
+        }
 
     ]);
 
@@ -395,7 +399,9 @@ async function getNewestCourses(order /*1: asc, -1: desc*/ , numCourse) {
             }
         },
 
-
+        {
+            $addFields: { "id": "$_id"}
+        }
 
 
     ]);
@@ -487,7 +493,9 @@ async function getMostRegisteredCategories(order /*1: asc, -1: desc*/ , numCateg
 
 
 
-
+        {
+            $addFields: { "id": "$_id"}
+        }
 
 
 
@@ -647,7 +655,9 @@ async function getCourseByCategory(query, numCourse, numSkip) {
                 "preserveNullAndEmptyArrays": true
             }
         },
-
+        {
+            $addFields: { "id": "$_id"}
+        }
 
 
     ]);
@@ -810,7 +820,9 @@ async function searchCourse(keySearch, listFieldsToSearchOn, numCourse, numSkip)
             }
         },
 
-
+        {
+            $addFields: { "id": "$_id"}
+        }
 
 
     ]);
@@ -934,14 +946,19 @@ async function getCourseById(courseId) {
             }
         },
 
-
+        {
+            $addFields: { "id": "$_id"}
+        }
 
 
     ]);
 
 
     const allValues = await cursor.toArray();
-    return allValues
+    if(!allValues || allValues.length < 1){
+        return null
+    }
+    return allValues[0]
 
 }
 
@@ -1097,7 +1114,9 @@ async function getRelatedCourses(categoryId, courseIdToExcept, numCourse, order)
             }
         },
 
-
+        {
+            $addFields: { "id": "$_id"}
+        }
 
     ]);
 
