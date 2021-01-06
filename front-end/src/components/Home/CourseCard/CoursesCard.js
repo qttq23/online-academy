@@ -9,6 +9,11 @@ import Typography from '@material-ui/core/Typography';
 import { Grid } from '@material-ui/core'
 import styled from 'styled-components';
 
+import myConfig from '../../../helpers/myConfig';
+import {
+    Link,
+} from 'react-router-dom';
+
 const TitleStyled = styled.div`
     overflow: hidden;
     text-overflow: ellipsis;
@@ -50,53 +55,92 @@ const useStyles = makeStyles({
     }
 });
 
-export default function CourseCard() {
+export default function CourseCard({course}) {
     const classes = useStyles();
+
+    let ratePoint = 0
+    let timesRate = 0
+    let price = 0
+    let priceAfterSaleOff = 0
+    let category = 'loading...'
+    let imageUrl = myConfig.defaultImageUrl
+    let id = ''
+    if(course){
+
+        category = `${course.category.topic}/${course.category.name}`
+
+        if (course.feedback) {
+            ratePoint = course.feedback.avgRatePoint
+            timesRate = course.feedback.timesRate
+
+        }
+
+        price = course.price
+        priceAfterSaleOff = price
+        if(course.saleOffPercent && course.saleOffPercent != 0){
+            priceAfterSaleOff = course.saleOffPercent * price
+        }
+
+        imageUrl = course.imageUrl
+        id = course.id
+    }
 
     return (
         <Card className={classes.root}>
+            <Link to={`/courses/${id}`}>details</Link>
             <CardActionArea>
                 <CardMedia
                     square
                     component="img"
                     alt="Contemplative Reptile"
                     height="150"
-                    image="https://images.pexels.com/photos/67636/rose-blue-flower-rose-blooms-67636.jpeg"
+                    image={imageUrl}
                 />
                 <CardContent>
                     <Typography className={classes.category}>
-                        Mobile Development
+                        {category}
                     </Typography>
                     <Typography className={classes.title}>
                         <TitleStyled>
-                            The Complete 2020 Flutter Development Bootcamp with Dart
+                            {/* The Complete 2020 Flutter Development Bootcamp with Dart */}
+                            {course ? course.name : 'loading...'}
                         </TitleStyled>
                     </Typography>
                     <Typography className={classes.author} color="textSecondary">
-                        Andrew Garfield
+                        {/* Andrew Garfield */}
+                        {course ? course.teacher.name : 'loading...'}
                     </Typography>
                     <Grid item container spacing={0}>
                         <Grid item>
-                            <Typography className={classes.rating}>5</Typography>
+                            <Typography className={classes.rating}>
+                                {/* 5 */}
+                                {ratePoint}
+                            </Typography>
                         </Grid>
                         <Grid item>
-                            <Rating value={5} size="small" readOnly style={{ marginTop: 1 }} />
+                            <Rating value={ratePoint} size="small" readOnly style={{ marginTop: 1 }} />
                         </Grid>
                         <Grid item>
-                            <Typography className={classes.ratingCount} color="textSecondary">(500,000)</Typography>
+                            <Typography className={classes.ratingCount} color="textSecondary">
+                                ({timesRate})
+                                </Typography>
                         </Grid>
                     </Grid>
                     <Grid container style={{ marginTop: 5 }}>
                         <Grid item>
                             <Typography className={classes.price}>
-                                $15.99
+                                ${priceAfterSaleOff}
                             </Typography>
                         </Grid>
-                        <Grid item style={{ marginTop: 3, marginLeft: 10, textDecoration: 'line-through' }}>
-                            <Typography>
-                                $100.99
-                            </Typography>
-                        </Grid>
+                        {
+                            price == priceAfterSaleOff ? '':
+                                <Grid item style={{ marginTop: 3, marginLeft: 10, textDecoration: 'line-through' }}>
+                                    <Typography>
+                                        ${price}
+                                    </Typography>
+                                </Grid>
+                        }
+                        
                     </Grid>
                 </CardContent>
             </CardActionArea>

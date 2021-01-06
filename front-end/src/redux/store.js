@@ -1,12 +1,48 @@
-/*
-    Don't add anything to this file, this file use for create a store from the root reducer
-    Root reducer file is Index.js file of Reducers folder
-*/
+import { createStore } from 'redux';
 
 
+const initState = {
+    mostViewedCourses: [
+    ],
+    detailedCourse: null,
+    feedbacks: [],
+    relatedCourses: []
+}
 
 
-import { createStore } from "redux";
-import rootReducer from "./reducers";
+const reducer = function (state, { type, payload }) {
+    switch (type) {
+        case 'set_mostViewedCourses':
+            console.log('store.js: set_mostViewedCourses: ', payload)
+            return {
+                ...state,
+                mostViewedCourses: [...payload.data]
+            }
+        case 'set_detailedCourse':
+            console.log('store.js: set_detailedCourse: ', payload)
+            return {
+                ...state,
+                detailedCourse: { ...payload.data}
+            }
+        case 'set_feedbacks':
+            console.log('store.js: set_feedbacks: ', payload)
+            return {
+                ...state,
+                feedbacks: [...payload.data]
+            }
+        case 'set_relatedCourses':
+            console.log('store.js: set_relatedCourses: ', payload)
+            return {
+                ...state,
+                relatedCourses: [...payload.data]
+            }
 
-export default createStore(rootReducer);
+
+        default:
+            return state;
+    }
+}
+
+const store = createStore(reducer, initState)
+
+export default store
