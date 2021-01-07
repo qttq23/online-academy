@@ -27,6 +27,7 @@ const useStyles = makeStyles((theme) => ({
     gridTemplateAreas: `"header" 
                          "main" 
                        "footer"`,
+    backgroundColor: "#108690"
   },
   main: {
     //minHeight: "100vh",

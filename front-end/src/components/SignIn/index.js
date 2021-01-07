@@ -9,48 +9,77 @@ import Typography from '@material-ui/core/Typography'
 import Container from '@material-ui/core/Container'
 
 import { makeStyles } from '@material-ui/core/styles'
-import { useHistory} from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
+import { setUserSession } from '../../utils/Common'
+
+import axios from 'axios'
 
 const useStyles = makeStyles((theme) => ({
   paper: {
-    width: '40%',
-    marginTop: theme.spacing(8),
+    marginTop: theme.spacing(15),
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    alignSelf: 'center'
+    backgroundColor: "white",
+    padding: "20px",
+    borderRadius: "5px",
   },
   form: {
     width: '100%',
-    marginTop: theme.spacing(1),
+    marginTop: theme.spacing(3),
   },
   submit: {
     margin: theme.spacing(3, 0, 2),
   },
 }))
 
-const SignIn = (props) => {
-  const history = useHistory()
-  const classes = useStyles()
+const useFormInput = initialValue => {
+  const [value, setValue] = useState(initialValue);
 
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
+  const handleChange = e => {
+    setValue(e.target.value);
+  }
+  return {
+    value,
+    onChange: handleChange
+  }
+}
+
+const SignIn = (props) => {
+  const classes = useStyles()
+  const history = useHistory()
+
+  const email = useFormInput('')
+  const password = useFormInput('')
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
 
-  const handleSignIn = (event) => {
-    event.preventDefault()
-    console.log(event)
-    history.push('/home')
+  const handleSignIn = () => {
+    console.log("Handling...")
+    setError(null)
+    setLoading(true)
+    axios.post('http://localhost:9999/api/auth/login', { email: email.value, password: password.value }).then(resp => {
+      console.log("Gotcha!")
+      setLoading(true)
+      setUserSession(resp.data.token, resp.data.user)
+      history.push('/home')
+    }).catch(err => {
+      setLoading(false)
+      console.log("Error!")
+      // if (err.response.status === 401)
+      //   setError(err.response.data.message)
+      // else
+      setError("Something went wrong. Please try again later.")
+    })
   }
 
   return (
-    <Container>
+    <Container component="main" maxWidth="sm">
       <div className={classes.paper}>
         <Typography component="h1" variant="h5">
           Sign in
         </Typography>
-        <form className={classes.form} onSubmit={handleSignIn}>
+        <form className={classes.form}>
           <TextField
             variant="outlined"
             margin="normal"
@@ -61,6 +90,7 @@ const SignIn = (props) => {
             name="email"
             autoComplete="email"
             autoFocus
+            {...email}
           />
           <TextField
             variant="outlined"
@@ -72,7 +102,9 @@ const SignIn = (props) => {
             type="password"
             id="password"
             autoComplete="current-password"
+            {...password}
           />
+          {error && <><p style={{ color: 'red' }}>{error}</p><br /></>}
           <FormControlLabel
             control={<Checkbox value="remember" color="primary" />}
             label="Remember me"
@@ -83,8 +115,10 @@ const SignIn = (props) => {
             variant="contained"
             color="primary"
             className={classes.submit}
+            disabled={loading}
+            onClick={handleSignIn}
           >
-            Sign In
+            {loading ? 'Loading...' : 'Login'}
           </Button>
           <Grid container>
             <Grid item xs>

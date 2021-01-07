@@ -9,7 +9,7 @@ import SearchIcon from "@material-ui/icons/Search";
 
 const useStyles = makeStyles((theme) => ({
   style: {
-    background: "#005580",
+    background: "#fccf14",
   },
   title: {
     fontFamily: "Arial",
@@ -19,22 +19,24 @@ const useStyles = makeStyles((theme) => ({
   textField: {
     width: 500,
     color: "white",
-    background: "white",
+    caretColor: "white",
+    background: "#2f3180",
+    borderRadius: "5px"
   },
-  logInButton: {
-    fontSize: 15,
-    marginLeft: theme.spacing(6),
-  },
-  signUpButton: {
-    background: "white",
-    color: "#005580",
+  signInButton: {
+    borderColor: "#1d1e4e",
     fontWeight: 600,
     textTransform: "none",
-    "&:hover": {
-      backgroundColor: fade(theme.palette.common.white, 0.8),
-    },
+    marginLeft: theme.spacing(3)
+  },
+  signUpButton: {
+    background: "#1d1e4e",
+    color: "#fff",
+    fontWeight: 600,
+    textTransform: "none"
   },
   resize: {
+    color: "white",
     padding: theme.spacing(1),
     fontSize: 13,
   },
@@ -52,9 +54,9 @@ const Header = () => {
           <NestedMenu></NestedMenu>
           <Grid item md={2} sm={12}>
             <Typography variant="h5" className={classes.title}>
-              <NavLink to="/" style={{ textDecoration: "none", color: "#fff" }}>
+              <NavLink to="/" style={{ textDecoration: "none", color: "#1d1e4e", fontWeight: "bold" }}>
                 Onlademy
-                            </NavLink>
+              </NavLink>
             </Typography>
           </Grid>
           <Grid item md={2}>
@@ -70,7 +72,7 @@ const Header = () => {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment>
-                      <IconButton>
+                      <IconButton style={{ color: "white" }}>
                         <SearchIcon />
                       </IconButton>
                     </InputAdornment>
@@ -85,23 +87,22 @@ const Header = () => {
           </Grid>
           <Grid item md={1}>
             <Hidden only={["sm", "xs"]}>
-              <Typography className={classes.logInButton}>
-                <NavLink
-                  to="/login"
-                  style={{ textDecoration: "none", color: "#fff" }}
-                >
-                  Login
-                                </NavLink>
-              </Typography>
+              <NavLink
+                to="/signin"
+                style={{ textDecoration: "none", color: "#1d1e4e" }}
+              >
+                <Button variant="outlined" className={classes.signInButton}
+                >Sign In</Button>
+              </NavLink>
             </Hidden>
           </Grid>
           <Grid item md={1}>
             <Hidden only={["sm", "xs"]}>
               <NavLink
                 to="/signup"
-                style={{ textDecoration: "none", color: "#00f" }}
+                style={{ textDecoration: "none", color: "#fff" }}
               >
-                <Button className={classes.signUpButton}>Join for Free</Button>
+                <Button className={classes.signUpButton}>Sign Up</Button>
               </NavLink>
             </Hidden>
           </Grid>
