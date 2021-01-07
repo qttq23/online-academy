@@ -1,11 +1,17 @@
-import React, {useState} from "react";
-import {fade, makeStyles} from "@material-ui/core/styles";
-import {AppBar, Grid, Hidden, InputAdornment, TextField, Toolbar, Typography} from "@material-ui/core";
+import React, { useState } from "react";
+import { fade, makeStyles } from "@material-ui/core/styles";
+import { AppBar, Grid, Hidden, InputAdornment, TextField, Toolbar, Typography } from "@material-ui/core";
 import Button from "@material-ui/core/Button";
-import {NavLink} from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import NestedMenu from "./NestedMenu";
 import IconButton from "@material-ui/core/IconButton";
 import SearchIcon from "@material-ui/icons/Search";
+
+import store from '../../redux/store'
+import myModel from '../../helpers/myModel'
+import {
+    Link,
+} from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
     style: {
@@ -43,7 +49,9 @@ const useStyles = makeStyles((theme) => ({
 const Header = () => {
     const classes = useStyles();
 
-    const [value, setValue] = useState();
+
+    // render
+    let account = store.getState().account
 
     return (
         <Grid container>
@@ -52,7 +60,7 @@ const Header = () => {
                     <NestedMenu></NestedMenu>
                     <Grid item md={2} sm={12}>
                         <Typography variant="h5" className={classes.title}>
-                            <NavLink to="/" style={{textDecoration: "none", color: "#fff"}}>
+                            <NavLink to="/" style={{ textDecoration: "none", color: "#fff" }}>
                                 Academy Online
                             </NavLink>
                         </Typography>
@@ -83,28 +91,51 @@ const Header = () => {
 
                         </Hidden>
                     </Grid>
-                    <Grid item md={1}>
-                        <Hidden only={["sm", "xs"]}>
-                            <Typography className={classes.logInButton}>
-                                <NavLink
-                                    to="/login"
-                                    style={{textDecoration: "none", color: "#fff"}}
-                                >
-                                    Login
-                                </NavLink>
-                            </Typography>
-                        </Hidden>
-                    </Grid>
-                    <Grid item md={1}>
-                        <Hidden only={["sm", "xs"]}>
-                            <NavLink
-                                to="/signup"
-                                style={{textDecoration: "none", color: "#00f"}}
+
+                    {
+                        account ? 
+                            (<NavLink
+                                to="/profile"
+                                style={{ textDecoration: "none", color: "#00f" }}
                             >
-                                <Button className={classes.signUpButton}>Join for Free</Button>
-                            </NavLink>
-                        </Hidden>
-                    </Grid>
+                                <Button className={classes.signUpButton}>name: {account.name}</Button>
+                            </NavLink>)
+                        :
+                            (
+                                <Grid item md={1}>
+                                    <Hidden only={["sm", "xs"]}>
+                                        <Typography className={classes.logInButton}>
+                                            <NavLink
+                                                to="/login"
+                                                style={{ textDecoration: "none", color: "#fff" }}
+                                            >
+                                                Login
+                                </NavLink>
+                                        </Typography>
+                                    </Hidden>
+                                </Grid>
+                            )
+                    }
+                    {
+                        account ? '' :
+                            (
+                                <Grid item md={1}>
+                                    <Hidden only={["sm", "xs"]}>
+                                        <NavLink
+                                            to="/signup"
+                                            style={{ textDecoration: "none", color: "#00f" }}
+                                        >
+                                            <Button className={classes.signUpButton}>Join for Free</Button>
+                                        </NavLink>
+                                    </Hidden>
+                                </Grid>
+                            )
+                    }
+
+                    
+
+
+
                 </Toolbar>
             </AppBar>
         </Grid>

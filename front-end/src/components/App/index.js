@@ -17,6 +17,10 @@ import AddCourse from "../AddCourse";
 import VideoPlayer from "../VideoPlayer";
 import Homepage from "../Home/Homepage";
 
+import ActivateAccount from "../ActivateAccount";
+import store from '../../redux/store'
+import myModel from '../../helpers/myModel'
+
 const useStyles = makeStyles((theme) => ({
   root: {
     //display: "flex",
@@ -41,6 +45,35 @@ const useStyles = makeStyles((theme) => ({
 
 const App = ({ location }) => {
   const classes = useStyles();
+
+
+  let accessToken = localStorage.getItem('accessToken')
+  if (accessToken) {
+
+    // already Login
+    // if not account info, get it
+    if (!store.getState().account) {
+
+      let accountId = localStorage.getItem('accountId')
+      myModel.getAccountInfo(
+        accountId,
+        function ok(response) {
+
+          // store info
+          console.log('app: before dispatch')
+          store.dispatch({
+            type: 'set_account',
+            payload: {
+              data: response.data
+            }
+          })
+        },
+        function fail(error) {
+          // ??.......
+        }
+      )
+    }
+  }
 
   return (
     <div>
@@ -69,6 +102,8 @@ const App = ({ location }) => {
               </Route>
               <Route exact path="/signup">
                 <Signup />
+              </Route>
+              <Route exact path="/activate" component={ActivateAccount}>
               </Route>
               <Route exact path="/categories" >
                 <Categories />

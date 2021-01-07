@@ -6,7 +6,9 @@ const initState = {
     ],
     detailedCourse: null,
     feedbacks: [],
-    relatedCourses: []
+    relatedCourses: [],
+    account: null,
+    emailNeedValidate: null
 }
 
 
@@ -35,6 +37,24 @@ const reducer = function (state, { type, payload }) {
             return {
                 ...state,
                 relatedCourses: [...payload.data]
+            }
+        case 'set_account':
+            console.log('store.js: set_account: ', payload)
+            return {
+                ...state,
+                account: {...payload.data}
+            }
+        // case 'update_account': // payload: {name: 'ssdf'}
+        //     console.log('store.js: update_account: ', payload)
+        //     return {
+        //         ...state,
+        //         account: { ...state.account, ...payload.data }
+        //     }
+        case 'set_emailNeedValidate':
+            console.log('store.js: set_emailNeedValidate: ', payload)
+            return {
+                ...state,
+                emailNeedValidate: payload.data
             }
 
 
