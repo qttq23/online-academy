@@ -98,7 +98,7 @@ const Header = () => {
                                 to="/profile"
                                 style={{ textDecoration: "none", color: "#00f" }}
                             >
-                                <Button className={classes.signUpButton}>name: {account.name}</Button>
+                                <Button className={classes.signUpButton}>avatar, {account.name}</Button>
                             </NavLink>)
                         :
                             (

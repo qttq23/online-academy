@@ -211,21 +211,21 @@ Auth.refreshToken = async function(accessToken, refreshToken, context, callback)
   try {
     decoded = await utils.verifyJWT(accessToken, config.secretKey, true)
   } catch (err) {
-    context.res.status(400)
+    context.res.status(450)
     return { error: 'access token invalid' }
   }
 
   // check if refresh token expired
   if (utils.isCurrentSecondsExceed(decoded.refreshTokenExp)) {
-    console.log('refresh token expired')
-    context.res.status(401)
+    console.log('451')
+    context.res.status(451)
     return { error: 'refresh token expired' }
   }
 
   // check userId vs refresh token
   let result = await model.checkUserRefreshToken(decoded.userId, refreshToken)
   if (!result) {
-    context.res.status(400)
+    context.res.status(452)
     return { error: 'refresh token not found' }
   }
 

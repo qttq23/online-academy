@@ -41,22 +41,19 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function SignIn() {
+export default function SignIn(props) {
   const classes = useStyles();
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  // const [isLogin, setIslogin] = useState(false)
 
   function handleEmailChanged(event) {
 
-    // console.log('signin: handleEmailChanged: ', event.target.value)
     setEmail(event.target.value)
   }
 
   function handlePasswordChanged(event) {
 
-    // console.log('signin: handlePasswordChanged: ', event.target.value)
     setPassword(event.target.value)
   }
 
@@ -120,8 +117,11 @@ export default function SignIn() {
   if(accessToken){
 
     // already login, redirect
-    let returnUrl = localStorage.getItem('returnUrl')
-    return <Redirect to={returnUrl ? returnUrl: '/home'} />
+    let redirectUrl = '/home'
+    try {
+      redirectUrl = props.location.state.returnUrl
+    }catch(e){}
+    return <Redirect to={redirectUrl} />
   }
 
   return (

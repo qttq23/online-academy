@@ -92,6 +92,7 @@ class ImageUploadCard extends React.Component {
   handleUploadClick = event => {
     console.log();
     var file = event.target.files[0];
+    this.props.onFile(event.target.files[0])
     const reader = new FileReader();
     var url = reader.readAsDataURL(file);
 

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles, fade } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
@@ -13,8 +13,9 @@ import Button from '@material-ui/core/Button';
 
 import store from '../../redux/store'
 import myModel from '../../helpers/myModel'
+import myConfig from '../../helpers/myConfig'
 import {
-  Redirect,
+  Redirect, useRouteMatch
 } from 'react-router-dom';
 import TextField from '@material-ui/core/TextField';
 
@@ -59,10 +60,13 @@ const useStyles = makeStyles((theme) => ({
 export default function Profile() {
   const classes = useStyles();
 
-  let account = store.getState().account
-  const [name, setName] = useState(account? account.name: '')
-  const [email, setEmail] = useState(account? account.email: '')
-  const [description, setDescription] = useState(account? account.description: '')
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [description, setDescription] = useState('')
+  const [isRedirect, setIsRedirect] = useState(false)
+  let { path, url } = useRouteMatch();
+
+
 
   function handleNameChanged(event){
     setName(event.target.value)
@@ -74,14 +78,16 @@ export default function Profile() {
     setDescription(event.target.value)
   }
 
+  function handleChangePasswordClicked(event) {
+    /// ??.........
+  }
+
   function handleUpdateButtonClicked(event){
 
     console.log('profile: ')
     console.log('profile: name: ', name)
     console.log('profile: email: ', email)
     console.log('profile: description: ', description)
-
-
 
     function updateAccount(){
       
@@ -108,14 +114,11 @@ export default function Profile() {
             }
           })
 
-          // setName(response.data.name)
-          // setEmail(response.data.email)
-          // setDescription(response.data.description)
         },
         function fail(error) {
           
           let err = error.response.data.error
-          if (err.name == "TokenExpiredError") {
+          if (err.name == myConfig.error.name.JWT_EXPIRED) {
 
             console.log('refreshing token...')
             myModel.refreshAccessToken(
@@ -131,14 +134,27 @@ export default function Profile() {
                 updateAccount()
               },
               function fail(error2) {
-                alert(error2.message)
+                if (error2.response.status == myConfig.error.status.REFRESH_TOKEN_EXPIRED ){
+
+                  handleReLogin()
+
+                }
               }
             )
 
           }
+          else if (err.name == myConfig.error.name.JWT_ERROR){
+            handleReLogin()
+          }
+
         }
 
       )
+    }
+    
+    function handleReLogin() {
+      alert('login again to get access token')
+      setIsRedirect(true)
     }
 
     updateAccount()
@@ -146,9 +162,36 @@ export default function Profile() {
 
   }
 
-  function handleChangePasswordClicked(event){
 
+
+  // state updated when account available
+  let account = store.getState().account
+  useEffect(function () {
+    setName(account ? account.name : '')
+    setEmail(account ? account.email : '')
+    setDescription(account ? account.description : '')
+  }, [account])
+
+
+  // redirect to login
+  if(isRedirect || !localStorage.getItem('accessToken')){
+
+    localStorage.removeItem('accessToken')
+    localStorage.removeItem('refreshToken')
+    store.dispatch({
+      type: 'set_account',
+      payload: {
+        data: null
+      }
+    })
+
+
+    return <Redirect to={{
+      pathname: "/login",
+      state: { returnUrl: url }
+    }} />
   }
+
 
   return (
     <main>

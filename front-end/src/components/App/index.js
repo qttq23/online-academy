@@ -20,6 +20,7 @@ import Homepage from "../Home/Homepage";
 import ActivateAccount from "../ActivateAccount";
 import store from '../../redux/store'
 import myModel from '../../helpers/myModel'
+import '../../helpers/myFirebase'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -97,8 +98,8 @@ const App = ({ location }) => {
                   </Switch>
                 </AdminLayout>
               </Route>
-              <Route exact path="/login">
-                <Login />
+              <Route exact path="/login" component={Login}>
+                {/* <Login /> */}
               </Route>
               <Route exact path="/signup">
                 <Signup />
@@ -108,7 +109,7 @@ const App = ({ location }) => {
               <Route exact path="/categories" >
                 <Categories />
               </Route>
-              <Route exact path="/courses/:id/:videoid" >
+              <Route exact path="/videos/:videoId" >
                 <VideoPlayer />
               </Route>
               <Route exact path="/courses/:id" >
@@ -117,9 +118,9 @@ const App = ({ location }) => {
               <Route exact path="/profile">
                 <Profile />
               </Route>
-              <Route exact path="/profile/update">
+              {/* <Route exact path="/profile/update">
                 <UpdateProfile />
-              </Route>
+              </Route> */}
               <Route exact path="/addCourse">
                 <AddCourse />
               </Route>

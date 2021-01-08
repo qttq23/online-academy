@@ -8,7 +8,9 @@ const initState = {
     feedbacks: [],
     relatedCourses: [],
     account: null,
-    emailNeedValidate: null
+    emailNeedValidate: null,
+    chapters: [],
+    video: null
 }
 
 
@@ -40,10 +42,25 @@ const reducer = function (state, { type, payload }) {
             }
         case 'set_account':
             console.log('store.js: set_account: ', payload)
+
+            if(!payload.data){
+                return {
+                    ...state,
+                    account: null
+                }
+            }
+
             return {
                 ...state,
                 account: {...payload.data}
             }
+        case 'set_chapters':
+            console.log('store.js: set_chapters: ', payload)
+            return {
+                ...state,
+                chapters: [...payload.data]
+            }
+
         // case 'update_account': // payload: {name: 'ssdf'}
         //     console.log('store.js: update_account: ', payload)
         //     return {
@@ -55,6 +72,12 @@ const reducer = function (state, { type, payload }) {
             return {
                 ...state,
                 emailNeedValidate: payload.data
+            }
+        case 'set_video':
+            console.log('store.js: set_video: ', payload)
+            return {
+                ...state,
+                video: {...payload.data}
             }
 
 

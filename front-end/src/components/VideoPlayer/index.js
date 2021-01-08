@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import Button from '@material-ui/core/Button';
@@ -10,59 +10,156 @@ import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
 import YouTubeIcon from '@material-ui/icons/YouTube';
 
+
+import myRequest from "../../helpers/myRequest";
+import myConfig from '../../helpers/myConfig';
+import myModel from '../../helpers/myModel';
+import store from '../../redux/store'
+import {
+    useParams,
+    Redirect,
+    useRouteMatch
+} from "react-router-dom";
+import firebase from '../../helpers/myFirebase.js'
+
+
 const useStyles = makeStyles((theme) => ({
-  heroContent: {
-    backgroundColor: "white",
-    padding: theme.spacing(4, 4),
-    marginTop: 5,
-    marginBottom: 30
-  },
-  home: {
-    fontFamily: "Arial",
-    fontSize: 22,
-    fontWeight: 550,
-    marginTop: 40,
-  },
-  title: {
-    fontFamily: "Arial",
-    fontSize: 20,
-    fontWeight: 500,
-    marginBottom: 20,
-    marginTop: 2,
-  },
-  video: {
-    display: 'flex',
-    justifyContent: 'center',
-    height: '65vh'
-  },
-  prevButton: {
-    borderColor: "#304550",
-    color: '#304550',
-    "&:hover": {
-      backgroundColor: '#304550',
-      color: 'white'
+    heroContent: {
+        backgroundColor: "white",
+        padding: theme.spacing(4, 4),
+        marginTop: 5,
+        marginBottom: 30
     },
-  },
-  nextButton: {
-    width: '250px',
-    borderColor: "#005580",
-    color: '#005580',
-    "&:hover": {
-      backgroundColor: '#005580',
-      color: 'white'
+    home: {
+        fontFamily: "Arial",
+        fontSize: 22,
+        fontWeight: 550,
+        marginTop: 40,
     },
-  }
+    title: {
+        fontFamily: "Arial",
+        fontSize: 20,
+        fontWeight: 500,
+        marginBottom: 20,
+        marginTop: 2,
+    },
+    video: {
+        display: 'flex',
+        justifyContent: 'center',
+        height: '65vh'
+    },
+    prevButton: {
+        borderColor: "#304550",
+        color: '#304550',
+        "&:hover": {
+            backgroundColor: '#304550',
+            color: 'white'
+        },
+    },
+    nextButton: {
+        width: '250px',
+        borderColor: "#005580",
+        color: '#005580',
+        "&:hover": {
+            backgroundColor: '#005580',
+            color: 'white'
+        },
+    }
 }));
 
-export default function VideoPlayer() {
-  const classes = useStyles();
+export default function VideoPlayer(props) {
+    const classes = useStyles();
 
-  return (
-    <main>
+    let { videoId } = useParams();
+    var storage = firebase.storage().ref('');
+
+    console.log('videoplayer: create')
+
+    useEffect(function() {
+
+        myRequest({
+                method: 'get',
+                url: `${myConfig.apiServerAddress}/api/videos/${videoId}`,
+                params: {
+                    filter: '{"include": {"relation":  "chapter", "scope": {"include": {"relation": "course"}  }  }}'
+                }
+            },
+            function ok(response) {
+                store.dispatch({
+                    type: 'set_video',
+                    payload: {
+                        data: response.data
+                    }
+                });
+
+            },
+        )
+    }, [videoId])
+
+
+    const [videoUrl, setVideoUrl] = useState('')
+    let courseName = ''
+    let chapterName = ''
+    let videoDescription = ''
+    let courseLink = ''
+    let video = store.getState().video
+    if (video) {
+        courseName = video.chapter.course.name
+        chapterName = video.chapter.name
+        videoDescription = video.description
+        courseLink = '/courses/' + video.chapter.course.id
+
+        if (videoUrl == '') {
+
+            let accessToken = localStorage.getItem('accessToken')
+            myModel.getStorageToken(
+                accessToken,
+                function ok(response) {
+
+                    let token = response.data.readToken
+                    console.log('storage token: ', token)
+                    authWithFirebase(token,
+                        function ok() {
+
+                            console.log('getting url for: ', video.videoUrl)
+                            storage.child(video.videoUrl).getDownloadURL().then(function(url) {
+
+                                console.log(url)
+                                setVideoUrl(url)
+                            }).catch(function(error) {
+                                console.log(error)
+                            });
+                        },
+                        function fail(error) {
+
+                            console.log('fail to authen with firebase')
+                        })
+                },
+                function fail(error) {
+                    console.log('fail to get storage token')
+                }
+            )
+
+        }
+    }
+
+    function authWithFirebase(token, okCallback, failCallback) {
+        firebase.auth().signInWithCustomToken(token)
+            .then((user) => {
+                okCallback()
+            })
+            .catch((error) => {
+                console.log(error)
+                failCallback(error)
+            })
+    }
+
+    return (
+        <main>
       <Container maxWidth="lg">
         <Typography className={classes.home} align="start">
-          <Link href="#" onClick={(event) => event.preventDefault()} style={{ textDecoration: "none", color: "black" }}>
-            2020 Complete Python Bootcamp From Zero to Hero in Python
+          <Link href={courseLink} style={{ textDecoration: "none", color: "black" }}>
+            {courseName}
           </Link>
         </Typography>
       </Container>
@@ -73,7 +170,7 @@ export default function VideoPlayer() {
           </Grid>
           <Grid item xs={10}>
             <Typography className={classes.title} align="start" color="textPrimary">
-              Course Introduction
+              {chapterName}/{videoDescription}
             </Typography>
           </Grid>
         </Grid>
@@ -82,7 +179,9 @@ export default function VideoPlayer() {
             width='95%'
             height='95%'
             controls
-            url='https://www.youtube.com/watch?v=ysz5S6PUM-U'
+            // url='https://www.youtube.com/watch?v=ysz5S6PUM-U'
+            // url='https://firebasestorage.googleapis.com/v0/b/online-academy-7bd60.appspot.com/o/course%2F5fd4ec944ec3a2471437e2c2%2Fchapter%2F5fd6528de655e020bc479f46%2Ftimlaibautroi.mp4?alt=media&token=3fc628e8-a939-4a21-944b-503e0de586e3'
+            url={videoUrl}
             onReady={() => console.log('onReady callback')}
             onStart={() => console.log('onStart callback')}
             onPause={() => console.log('onPause callback')}
@@ -104,5 +203,5 @@ export default function VideoPlayer() {
         </Grid>
       </Container>
     </main>
-  );
+    );
 };

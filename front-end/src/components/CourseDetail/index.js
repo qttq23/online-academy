@@ -1,4 +1,4 @@
-import React, { Component, useEffect } from 'react';
+import React, { Component, useEffect, useState } from 'react';
 import { Grid, Typography, List, Button, Paper, ListItem, Avatar, LinearProgress } from '@material-ui/core';
 import { Rating, Pagination } from '@material-ui/lab';
 import Image from 'material-ui-image';
@@ -15,123 +15,387 @@ import VideoTile from './VideoTile';
 import CommentTile from './CommentTile';
 import CourseCard from "../Home/CourseCard/CoursesCard";
 
+import TextField from '@material-ui/core/TextField';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
 
 import myRequest from "../../helpers/myRequest";
 import myConfig from '../../helpers/myConfig';
+import myModel from '../../helpers/myModel';
 import store from '../../redux/store'
 import {
-  BrowserRouter,
-  Switch,
-  Route,
-  Link,
-  Redirect,
-  useRouteMatch,
-  useParams
+    BrowserRouter,
+    Switch,
+    Route,
+    Link,
+    Redirect,
+    useRouteMatch,
+    useParams
 } from 'react-router-dom';
+import renderHTML from 'react-render-html';
+import firebase from '../../helpers/myFirebase.js'
+
+let videoDescription = '',
+    videoFile = {};
+let targetChapterId = '';
 
 function CourseDetail(props) {
 
-  let { id } = useParams();
-  console.log('coursedetail: ', id)
+    let { id } = useParams();
+    console.log('coursedetail: ', id)
 
-  // get data
-  useEffect(() => {
+    var storage = firebase.storage().ref('');
+    const [open, setOpen] = useState(false);
+    const [newChapterName, setNewChapterName] = useState('')
+    const handleAddChapterClicked = () => {
+        setOpen(true);
+    };
+    const handleClose = () => {
+        setOpen(false);
+    };
 
-    myRequest(
-      {
-        method: 'get',
-        url: `${myConfig.apiServerAddress}/api/custom/Courses/ById/${id}`,
-        params: {}
-      },
-      function ok(response) {
-        store.dispatch({
-          type: 'set_detailedCourse',
-          payload: {
-            data: response.data
-          }
-        });
+    function handleNewChapterNameChanged(event) {
+        setNewChapterName(event.target.value)
+    }
 
-      },
-    )
+    function handleAddChapterConfirmed() {
+        // close dialog
+        setOpen(false);
 
-    myRequest(
-      {
-        method: 'get',
-        url: `${myConfig.apiServerAddress}/api/feedbacks`,
-        params: {
-          filter: `{"where": {"courseId": "${id}"}, "include": "account"}`
+
+        let courseId = store.getState().detailedCourse.id
+
+        let maxOrder = 0
+        let oldChapters = store.getState().chapters
+        oldChapters.forEach(function(chapter) {
+            if (maxOrder < chapter.order) {
+                maxOrder = chapter.order
+            }
+        })
+        let newOrder = maxOrder + 1
+        let newChapter = {
+            courseId,
+            order: newOrder,
+            name: newChapterName
         }
-      },
-      function ok(response) {
-        store.dispatch({
-          type: 'set_feedbacks',
-          payload: {
-            data: response.data
-          }
-        });
+        console.log(newChapter)
 
-      },
-    )
+        myModel.createChapter(
+            localStorage.getItem('accessToken'),
+            newChapter,
+            function ok(response) {
 
-    myRequest(
-      {
-        method: 'get',
-        url: `${myConfig.apiServerAddress}/api/custom/Courses/${id}/related`,
-        params: {
-          numLimit: 10
+                let newChapter = response.data
+                newChapter.videos = []
+                store.dispatch({
+                    type: 'set_chapters',
+                    payload: {
+                        data: [...oldChapters, newChapter]
+                    }
+                });
+            },
+            function fail(error) {
+                console.log('fail to add chapter')
+            }
+        )
+    }
+
+    const [openVideoDialog, setOpenVideoDialog] = useState(false);
+
+    function handleAddVideoClicked(chapterId, event) {
+
+        targetChapterId = chapterId
+        setOpenVideoDialog(true);
+    };
+    const handleAddVideoCloseClicked = () => {
+        setOpenVideoDialog(false);
+    };
+
+    function handleVideoDescriptionChanged(event) {
+        videoDescription = event.target.value
+    }
+
+    function handleVideoFileChanged(event) {
+        videoFile = event.target.files[0]
+    }
+
+    function handleAddVideoConfirmed() {
+        // close dialog
+        setOpenVideoDialog(false);
+
+        let targetChapter = chapters[0]
+        chapters.forEach(function(chapter) {
+            if (chapter.id == targetChapterId) {
+                targetChapter = chapter
+            }
+        })
+
+        let maxOrder = 0
+        let oldVideos = targetChapter.videos
+        oldVideos.forEach(function(video) {
+            if (maxOrder < video.order) {
+                maxOrder = video.order
+            }
+        })
+        let newOrder = maxOrder + 1
+
+        let videoName = "" + newOrder + "." + videoFile.name.substring(videoFile.name.lastIndexOf('.') + 1)
+        let videoPath = `course/${course.id}/chapter/${targetChapter.order}/${videoName}`
+
+        let newVideo = {
+            chapterId: targetChapter.id,
+            videoUrl: videoPath,
+            description: videoDescription,
+            order: newOrder
         }
-      },
-      function ok(response) {
-        store.dispatch({
-          type: 'set_relatedCourses',
-          payload: {
-            data: response.data
-          }
-        });
+        console.log(newVideo)
 
-      },
-    )
+        function createVideo() {
+            myModel.createVideo(
+                localStorage.getItem('accessToken'),
+                newVideo,
+                function ok(response) {
 
-  }, [id])
+                    let newVideo = response.data
+
+                    // upload to storage
+                    let accessToken = localStorage.getItem('accessToken')
+                    myModel.getStorageToken(
+                        accessToken,
+                        function ok(response) {
+
+                            let token = response.data.readToken
+                            console.log('storage token: ', token)
+                            authWithFirebase(token,
+                                function ok() {
+
+                                    console.log('uploading video...: ')
+                                    uploadVideo(
+                                        videoPath,
+                                        videoFile,
+                                        function ok(downloadUrl) {
+
+                                            // add to store, re-render
+                                            targetChapter.videos = [...targetChapter.videos, newVideo]
+                                            store.dispatch({
+                                                type: 'set_chapters',
+                                                payload: {
+                                                    data: [...chapters]
+                                                }
+                                            });
+
+                                        },
+                                        function fail() {
+                                            console.log('fail to upload video')
+
+                                        }
+                                    )
+                                },
+                                function fail(error) {
+
+                                    console.log('fail to authen with firebase')
+                                })
+                        },
+                        function fail(error) {
+                            console.log('fail to get storage token')
+                        }
+                    )
 
 
-  // prepare
-  let course = store.getState().detailedCourse
-  let feedbacks = store.getState().feedbacks
-  let relatedCourses = store.getState().relatedCourses
 
-  let ratePoint = 0
-  let timesRate = 0
-  let price = 0
-  let priceAfterSaleOff = 0
-  let category = 'loading...'
-  let imageUrl = myConfig.defaultImageUrl
-  let courseId = ''
-  let updatedAt = '0/0/0'
-  if (course) {
 
-    category = `${course.category.topic}/${course.category.name}`
+                },
+                function fail(error) {
+                    console.log('fail to add video')
+                }
+            )
+        }
 
-    if (course.feedback) {
-      ratePoint = course.feedback.avgRatePoint
-      timesRate = course.feedback.timesRate
+        function authWithFirebase(token, okCallback, failCallback) {
+            firebase.auth().signInWithCustomToken(token)
+                .then((user) => {
+                    okCallback()
+                })
+                .catch((error) => {
+                    console.log(error)
+                    failCallback(error)
+                })
+        }
+
+        function uploadVideo(videoPath, videoFile, okCallback, failCallback) {
+
+            var uploadTask = storage.child(
+                videoPath
+            ).put(videoFile);
+
+            uploadTask.on(firebase.storage.TaskEvent.STATE_CHANGED,
+                function(snapshot) {
+                    var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    console.log('Upload is ' + progress + '% done');
+                    switch (snapshot.state) {
+                        case firebase.storage.TaskState.PAUSED: // or 'paused'
+                            console.log('Upload is paused');
+                            break;
+                        case firebase.storage.TaskState.RUNNING: // or 'running'
+                            console.log('Upload is running');
+                            break;
+                    }
+                },
+                function(error) {
+
+                    window.alert(error)
+                    switch (error.code) {
+                        case 'storage/unauthorized':
+                            // User doesn't have permission to access the object
+                            break;
+
+                        case 'storage/canceled':
+                            // User canceled the upload
+                            break;
+
+                        case 'storage/unknown':
+                            // Unknown error occurred, inspect error.serverResponse
+                            break;
+                    }
+                },
+                function() {
+                    console.log('done uploading')
+                    // uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+                    //     console.log('File available at: ' + downloadURL);
+                    //     okCallback(downloadURL)
+                    // });
+                    okCallback(videoPath)
+                });
+
+        }
+
+
+        createVideo()
 
     }
 
-    price = course.price
-    priceAfterSaleOff = price
-    if (course.saleOffPercent && course.saleOffPercent != 0) {
-      priceAfterSaleOff = course.saleOffPercent * price
+
+    // get data
+    useEffect(() => {
+
+        myRequest({
+                method: 'get',
+                url: `${myConfig.apiServerAddress}/api/custom/Courses/ById/${id}`,
+                params: {}
+            },
+            function ok(response) {
+                store.dispatch({
+                    type: 'set_detailedCourse',
+                    payload: {
+                        data: response.data
+                    }
+                });
+
+            },
+        )
+
+        myRequest({
+                method: 'get',
+                url: `${myConfig.apiServerAddress}/api/feedbacks`,
+                params: {
+                    filter: `{"where": {"courseId": "${id}"}, "include": "account"}`
+                }
+            },
+            function ok(response) {
+                store.dispatch({
+                    type: 'set_feedbacks',
+                    payload: {
+                        data: response.data
+                    }
+                });
+
+            },
+        )
+
+        myRequest({
+                method: 'get',
+                url: `${myConfig.apiServerAddress}/api/custom/Courses/${id}/related`,
+                params: {
+                    numLimit: 10
+                }
+            },
+            function ok(response) {
+                store.dispatch({
+                    type: 'set_relatedCourses',
+                    payload: {
+                        data: response.data
+                    }
+                });
+
+            },
+        )
+
+        myRequest({
+                method: 'get',
+                url: `${myConfig.apiServerAddress}/api/chapters`,
+                params: {
+                    filter: `{"where": { "courseId": "${id}"}, "include": "videos"}`
+                }
+            },
+            function ok(response) {
+                store.dispatch({
+                    type: 'set_chapters',
+                    payload: {
+                        data: response.data
+                    }
+                });
+
+            },
+        )
+
+    }, [id])
+
+
+    // prepare
+    let course = store.getState().detailedCourse
+    let feedbacks = store.getState().feedbacks
+    let relatedCourses = store.getState().relatedCourses
+    let chapters = store.getState().chapters
+
+    let ratePoint = 0
+    let timesRate = 0
+    let price = 0
+    let priceAfterSaleOff = 0
+    let category = 'loading...'
+    let imageUrl = myConfig.defaultImageUrl
+    let courseId = ''
+    let updatedAt = '0/0/0'
+    if (course) {
+
+        category = `${course.category.topic}/${course.category.name}`
+
+        if (course.feedback) {
+            ratePoint = course.feedback.avgRatePoint
+            timesRate = course.feedback.timesRate
+
+        }
+
+        price = course.price
+        priceAfterSaleOff = price
+        if (course.saleOffPercent && course.saleOffPercent != 0) {
+            priceAfterSaleOff = course.saleOffPercent * price
+        }
+
+        imageUrl = course.imageUrl
+        courseId = course.id
+        updatedAt = course.updatedAt
+
+
+
     }
 
-    imageUrl = course.imageUrl
-    courseId = course.id
-    updatedAt = course.updatedAt
-  }
 
-  // render
-  return (
-    <Grid container>
+    // render
+    return (
+        <Grid container>
       <Grid container style={{ backgroundColor: '#1e1e1c' }}>
         <Grid container style={{ marginTop: 40, marginBottom: 40 }}>
           <Grid xs={1} />
@@ -217,20 +481,41 @@ function CourseDetail(props) {
             }}
           >Course content</Typography>
 
-          <Typography variant="caption" style={{ marginTop: 30, marginBottom: 5, color: 'grey' }}>23 videos</Typography>
-          <Paper style={{ color: 'white' }} variant="outlined">
+          <Typography variant="caption" style={{ marginTop: 30, marginBottom: 5, color: 'grey' }}>
+            23 videos
+            </Typography>
+          <Paper style={{ color: 'black' }} variant="outlined">
             <List>
-              <ListItem>
-                <VideoTile videoTitle="Course Introduction" videoTime="6:39" />
-              </ListItem>
-              <ListItem>
-                <VideoTile videoTitle="Course Curriculum Overview" videoTime="4:00" />
-              </ListItem>
-              <ListItem>
-                <VideoTile videoTitle="Why Python?" videoTime="5:18" />
-              </ListItem>
+              {
+                chapters.map(function (chapter) {
 
+                  return (
+                    <ListItem>
+                      {chapter.name}
+                      <List>
+                        {
+                          chapter.videos.map(function (video) {
+
+                            return (
+                              <ListItem>
+                                <VideoTile
+                                  videoTitle={video.description}
+                                  videoTime="new"
+                                  videoId={video.id} />
+                              </ListItem>
+                            )
+
+                          })
+                        }
+                      </List>
+                        <Button variant="outlined" color="inherit" 
+                        onClick={handleAddVideoClicked.bind(null, chapter.id)}>Add video</Button>
+                    </ListItem>
+                  )
+                })
+              }
             </List>
+            <Button variant="outlined" color="inherit" onClick={handleAddChapterClicked}>Add chapter</Button>
           </Paper>
           {/*------------------Description---------------------*/}
           <Typography
@@ -240,7 +525,7 @@ function CourseDetail(props) {
             }}
           >Description</Typography>
           <Typography variant="p" style={{ marginTop: 20 }}>
-            {course ? course.longDescription : 'loading...'}
+            {course ?  renderHTML(course.longDescription) : 'loading...'}
           </Typography>
 
           {/*------------------Lecturer---------------------*/}
@@ -268,42 +553,7 @@ function CourseDetail(props) {
               flexDirection: 'row'
             }}>
               <Avatar alt="Remy Sharp" src="https://img-b.udemycdn.com/user/75x75/9685726_67e7_4.jpg?secure=QU9dg6WVqEO3vJRsT2JMsA%3D%3D%2C1608943704" style={{ width: 120, height: 120, marginRight: 10 }} />
-              {/* <Grid item style={{
-                display: 'flex',
-                flexDirection: 'column'
-              }}>
-                <Grid item style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  marginBottom: 10
-                }}>
-                  <StarIcon style={{ width: 20, height: 20, marginRight: 10, color: 'orange' }} />
-                  <Typography variant="subtitle2">4.6 Instructor Rating</Typography>
-                </Grid>
-                <Grid item style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  marginBottom: 10
-                }}>
-                  <CommentIcon style={{ width: 20, height: 20, marginRight: 10, color: 'orange' }} />
-                  <Typography variant="subtitle2">685,399 Reviews</Typography>
-                </Grid>
-                <Grid item style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  marginBottom: 10
-                }}>
-                  <SupervisorAccountIcon style={{ width: 20, height: 20, marginRight: 10, color: 'orange' }} />
-                  <Typography variant="subtitle2">2,096,592 Students</Typography>
-                </Grid>
-                <Grid item style={{
-                  display: 'flex',
-                  flexDirection: 'row'
-                }}>
-                  <PlayCircleFilledIcon style={{ width: 20, height: 20, marginRight: 10, color: 'orange' }} />
-                  <Typography variant="subtitle2">31 Courses</Typography>
-                </Grid>
-              </Grid> */}
+            
             </Grid>
             <Typography variant="p" variantMapping="p" style={{ marginTop: 20 }}>
               {course ? course.teacher.description : 'loading...'}
@@ -333,53 +583,7 @@ function CourseDetail(props) {
                 ({timesRate})
                 </Typography>
             </Grid>
-            {/* <Grid xs={9} style={{
-              marginLeft: 20,
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between'
-            }}>
-              <Grid item style={{
-                display: 'flex',
-                alignItems: 'center'
-              }}>
-                <LinearProgress variant="buffer" value={54} style={{ height: 10, width: 450, marginRight: 10 }} />
-                <Rating value={5} readOnly size="small" />
-                <Typography color="primary" variant="caption" style={{ fontSize: 14, marginLeft: 10 }}>54%</Typography>
-              </Grid>
-              <Grid item style={{
-                display: 'flex',
-                alignItems: 'center'
-              }}>
-                <LinearProgress variant="buffer" value={37} style={{ height: 10, width: 450, marginRight: 10 }} />
-                <Rating value={4} readOnly size="small" />
-                <Typography color="primary" variant="caption" style={{ fontSize: 14, marginLeft: 10 }}>37%</Typography>
-              </Grid>
-              <Grid item style={{
-                display: 'flex',
-                alignItems: 'center'
-              }}>
-                <LinearProgress variant="buffer" value={8} style={{ height: 10, width: 450, marginRight: 10 }} />
-                <Rating value={3} readOnly size="small" />
-                <Typography color="primary" variant="caption" style={{ fontSize: 14, marginLeft: 10 }}>8%</Typography>
-              </Grid>
-              <Grid item style={{
-                display: 'flex',
-                alignItems: 'center'
-              }}>
-                <LinearProgress variant="buffer" value={1} style={{ height: 10, width: 450, marginRight: 10 }} />
-                <Rating value={2} readOnly size="small" />
-                <Typography color="primary" variant="caption" style={{ fontSize: 14, marginLeft: 10 }}>1%</Typography>
-              </Grid>
-              <Grid item style={{
-                display: 'flex',
-                alignItems: 'center'
-              }}>
-                <LinearProgress variant="buffer" value={0.5} style={{ height: 10, width: 450, marginRight: 10 }} />
-                <Rating value={1} readOnly size="small" />
-                <Typography color="primary" variant="caption" style={{ fontSize: 14, marginLeft: 10 }}>{"<1%"}</Typography>
-              </Grid>
-            </Grid> */}
+           
           </Grid>
 
           {/*------------------Review---------------------*/}
@@ -483,8 +687,69 @@ function CourseDetail(props) {
         </Grid>
         <Grid xs={1} />
       </Grid>
+
+      <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
+        <DialogTitle id="form-dialog-title">Add new chapter</DialogTitle>
+        <DialogContent>
+
+          <TextField
+            autoFocus
+            margin="dense"
+            id="newChapterName"
+            label="Enter chapter's name"
+            type="text"
+            fullWidth
+            value={newChapterName}
+            onChange={handleNewChapterNameChanged}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleAddChapterConfirmed} color="primary">
+            Add
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+        <Dialog open={openVideoDialog} onClose={handleAddVideoCloseClicked} 
+            aria-labelledby="form-dialog-title">
+        <DialogTitle id="form-dialog-title">Add new video</DialogTitle>
+        <DialogContent>
+
+          <TextField
+            autoFocus
+            margin="dense"
+            id="newVideoDescription"
+            label="Enter video's description"
+            type="text"
+            fullWidth
+            onChange={handleVideoDescriptionChanged}
+          />
+          <TextField
+            autoFocus
+            margin="dense"
+            id="videoFile"
+            label="select video file"
+            type="file"
+            fullWidth
+            onChange={handleVideoFileChanged}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleAddVideoCloseClicked} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleAddVideoConfirmed} color="primary">
+            Add
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+
     </Grid >
-  );
+    );
 }
 
 export default CourseDetail;
