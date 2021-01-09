@@ -21,7 +21,7 @@ Category.beforeRemote('**', async function(context) {
     const decoded = await utils.verifyJWT(token, "abcdef")
 
     // only admin
-    if (decoded.userType == config.custom.database.Category.type.admin) {
+    if (decoded.userType == config.custom.database.account.type.admin) {
 
       // allow create,update
       if (context.methodString == 'category.create' ||

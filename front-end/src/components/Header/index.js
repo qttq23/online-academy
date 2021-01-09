@@ -12,8 +12,11 @@ import myConfig from '../../helpers/myConfig';
 import store from '../../redux/store'
 import myModel from '../../helpers/myModel'
 import {
-    Link, Redirect
+    Link,
+    Redirect
 } from 'react-router-dom';
+import { Menu, MenuItem } from "@material-ui/core";
+import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 
 const useStyles = makeStyles((theme) => ({
     style: {
@@ -49,42 +52,57 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Header = () => {
-    const classes = useStyles();
+        const classes = useStyles();
 
-    const [redirectUrl, setRedirectUrl] = useState('');
-    const [keyword, setKeyword] = useState('')
-    function handleKeywordChanged(event){
-        setKeyword(event.target.value)
-    }
-    function handleSearchClicked(){
-        console.log('header: keyword: ', keyword)
-        setRedirectUrl(`/courseList?fields=search&keyword=${keyword}`)
-    }
+        const [menuPosition, setMenuPosition] = useState('');
+        const handleRightClick = (event) => {
+            if (menuPosition) {
+                return;
+            }
+            event.preventDefault();
+            setMenuPosition({
+                top: event.pageY - 10,
+                left: event.pageX,
+            });
+        };
 
-    useEffect(function(){
 
-        myRequest({
-                method: 'get',
-                url: `${myConfig.apiServerAddress}/api/categories`,
-            },
-            function ok(response) {
-                store.dispatch({
-                    type: 'set_categories',
-                    payload: {
-                        data: response.data
-                    }
-                });
+        const [redirectUrl, setRedirectUrl] = useState('');
+        const [keyword, setKeyword] = useState('')
 
-            },
-        )
-    },[])
+        function handleKeywordChanged(event) {
+            setKeyword(event.target.value)
+        }
 
-    // render
-    let account = store.getState().account
-    let categories = store.getState().categories
+        function handleSearchClicked() {
+            console.log('header: keyword: ', keyword)
+            setRedirectUrl(`/courseList?fields=search&keyword=${keyword}`)
+        }
 
-    return (
-        <Grid container>
+        useEffect(function() {
+
+            myRequest({
+                    method: 'get',
+                    url: `${myConfig.apiServerAddress}/api/categories`,
+                },
+                function ok(response) {
+                    store.dispatch({
+                        type: 'set_categories',
+                        payload: {
+                            data: response.data
+                        }
+                    });
+
+                },
+            )
+        }, [])
+
+        // render
+        let account = store.getState().account
+        let categories = store.getState().categories
+
+        return (
+            <Grid container>
             <AppBar position="static" className={classes.style}>
                 <Toolbar>
                     <NestedMenu categories={categories}></NestedMenu>
@@ -124,55 +142,134 @@ const Header = () => {
                         </Hidden>
                     </Grid>
 
-                    {
-                        account ? 
-                            (<NavLink
-                                to="/profile"
-                                style={{ textDecoration: "none", color: "#00f" }}
-                            >
-                                <Button className={classes.signUpButton}>avatar, {account.name}</Button>
-                            </NavLink>)
-                        :
-                            (
-                                <Grid item md={1}>
-                                    <Hidden only={["sm", "xs"]}>
-                                        <Typography className={classes.logInButton}>
-                                            <NavLink
-                                                to="/login"
-                                                style={{ textDecoration: "none", color: "#fff" }}
-                                            >
-                                                Login
-                                </NavLink>
-                                        </Typography>
-                                    </Hidden>
-                                </Grid>
-                            )
-                    }
-                    {
-                        account ? '' :
-                            (
-                                <Grid item md={1}>
-                                    <Hidden only={["sm", "xs"]}>
-                                        <NavLink
-                                            to="/signup"
+                           <Menu
+                                open={!!menuPosition}
+                                onClose={() => setMenuPosition(null)}
+                                anchorReference="anchorPosition"
+                                anchorPosition={menuPosition}
+                                
+                                >
+                                {
+                                    account && account.type == 2 ? 
+                                    (<MenuItem >Student</MenuItem>) : ''
+                                }
+                                {
+                                    account && account.type == 1 ? 
+                                    (<MenuItem >Teacher</MenuItem>): ''
+                                }
+                                {
+                                    account && account.type == 0 ? 
+                                    (
+                                       <NavLink
+                                            to="/admin/dashboard"
                                             style={{ textDecoration: "none", color: "#00f" }}
                                         >
-                                            <Button className={classes.signUpButton}>Join for Free</Button>
+                                        <MenuItem onClick={()=>{setMenuPosition(null)}} >
+                                        Admin Dashboard
+                                        </MenuItem>
+
                                         </NavLink>
-                                    </Hidden>
-                                </Grid>
-                            )
-                    }
+                                    )
+                                    : ''
+                                }
 
-                    
+                                <NavLink
+                                    to="/profile"
+                                    style={{ textDecoration: "none", color: "#00f" }}
+                                        >
+                                <MenuItem onClick={()=>{setMenuPosition(null)}}>Profile</MenuItem>
+                                </NavLink>
+
+                                <NavLink
+                                    to="/courses/registered"
+                                    style={{ textDecoration: "none", color: "#00f" }}
+                                        >
+                                <MenuItem onClick={()=>{setMenuPosition(null)}}>Register List</MenuItem>
+                                </NavLink>
+                                
+                                <NavLink
+                                    to="/courses/watchList"
+                                    style={{ textDecoration: "none", color: "#00f" }}
+                                        >
+                                <MenuItem onClick={()=>{setMenuPosition(null)}}>Wish List</MenuItem>
+                                </NavLink>
+                   
+                                {
+                                    account && account.type == 1 ? 
+                                    (
+                                        <NavLink
+                                            to="/courses/teachList"
+                                            style={{ textDecoration: "none", color: "#00f" }}
+                                                >
+                                        <MenuItem onClick={()=>{setMenuPosition(null)}}>Teach List</MenuItem>
+                                        </NavLink>
+                                    )
+                                    : ''
+                                }
+
+                                <NavLink
+                                    to="/logout"
+                                    style={{ textDecoration: "none", color: "#00f" }}
+                                        >
+                                <MenuItem onClick={()=>{setMenuPosition(null)}}>Log out</MenuItem>
+                                </NavLink>
+                                
+
+
+                            </Menu>
+
+                    {
+                        account ? 
+
+                            (
+                                <Button className={classes.signUpButton}
+                                onClick={handleRightClick}
+                                startIcon={<AccountCircleIcon />}
+                                >
+                                {account.name}
+                                </Button>
+     
+                                )
+                                    :
+                                        (
+                                            <Grid item md={1}>
+                                                <Hidden only={["sm", "xs"]}>
+                                                    <Typography className={classes.logInButton}>
+                                                        <NavLink
+                                                            to="/login"
+                                                            style={{ textDecoration: "none", color: "#fff" }}
+                                                        >
+                                                            Login
+                                            </NavLink>
+                                                    </Typography>
+                                                </Hidden>
+                                            </Grid>
+                                        )
+                        } 
+                                {
+                                    account ? '' :
+                                        (
+                                            <Grid item md={1}>
+                                                                <Hidden only={["sm", "xs"]}>
+                                                                    <NavLink
+                                                                        to="/signup"
+                                                                        style={{ textDecoration: "none", color: "#00f" }}
+                                                                    >
+                                                                        <Button className={classes.signUpButton}>Join for Free</Button>
+                                                                    </NavLink>
+                                                                </Hidden>
+                                                            </Grid>
+                                        )
+                                }
 
 
 
-                </Toolbar>
-            </AppBar>
-            {redirectUrl != '' ? (<Redirect to={redirectUrl} />): ''}
-        </Grid>
-    );
+
+
+    </Toolbar> 
+    </AppBar> { redirectUrl != '' ? (<Redirect to={redirectUrl} />) : '' } 
+    </Grid>
+);
 };
 
 export default Header;

@@ -17,6 +17,11 @@ import MenuIcon from "@material-ui/icons/Menu";
 import NotificationsIcon from "@material-ui/icons/NotificationsOutlined";
 import InputIcon from "@material-ui/icons/Input";
 import { Colors } from "../../../helpers/colors";
+
+import {
+    Link,
+} from 'react-router-dom';
+
 const useStyles = makeStyles(() => ({
   root: {
     background: Colors.primary,
@@ -34,10 +39,14 @@ const Header = ({ className, onMobileNavOpen, ...rest }) => {
   return (
     <AppBar className={clsx(classes.root, className)} elevation={0} {...rest}>
       <Toolbar>
-        <Avatar className={classes.logo}>
+        <NavLink to="/" style={{ textDecoration: "none", color: "#fff" }}>
+            Academy Online
+        </NavLink>
+
+        {/*<Avatar className={classes.logo}>
           <NavLink to="/" style={{ textDecoration: "none", color: "#fff" }} />
-          OA
-        </Avatar>
+          QA
+        </Avatar>*/}
         <Box flexGrow={1} />
         <Hidden mdDown>
           <IconButton color="inherit">
@@ -49,9 +58,13 @@ const Header = ({ className, onMobileNavOpen, ...rest }) => {
               <NotificationsIcon />
             </Badge>
           </IconButton>
+
+  
           <IconButton color="inherit">
             <InputIcon />
           </IconButton>
+
+
         </Hidden>
         <Hidden lgUp>
           <IconButton color="inherit" onClick={onMobileNavOpen}>

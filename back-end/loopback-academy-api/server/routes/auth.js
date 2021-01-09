@@ -50,6 +50,10 @@ Auth.login = async function(email, password, context, callback) {
   }
 
   // check if active
+  if (user.activeCode == "banned") {
+    context.res.status(499)
+    return { 'error': 'authentication failed: account was banned' }
+  }
   if (user.activeCode != "") {
     context.res.status(444)
     return { 'error': 'authentication failed: account has not activated' }

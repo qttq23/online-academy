@@ -74,6 +74,11 @@
       "type": "hasMany",
       "model": "chapter",
       "foreignKey": ""
+    },
+    "registrations": {
+      "type": "hasMany",
+      "model": "accountCourse",
+      "foreignKey": ""
     }
   },
   "acls": [],

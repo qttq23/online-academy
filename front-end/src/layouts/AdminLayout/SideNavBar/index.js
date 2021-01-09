@@ -40,9 +40,9 @@ const items = [
     title: "Courses",
   },
   {
-    href: "/admin/account",
+    href: "/admin/categories",
     icon: SecurityIcon,
-    title: "Account",
+    title: "Categories",
   },
   {
     href: "/admin/settings",

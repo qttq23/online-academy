@@ -64,12 +64,6 @@ const reducer = function(state, { type, payload }) {
                 chapters: [...payload.data]
             }
 
-            // case 'update_account': // payload: {name: 'ssdf'}
-            //     console.log('store.js: update_account: ', payload)
-            //     return {
-            //         ...state,
-            //         account: { ...state.account, ...payload.data }
-            //     }
         case 'set_emailNeedValidate':
             console.log('store.js: set_emailNeedValidate: ', payload)
             return {

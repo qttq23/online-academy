@@ -8,7 +8,6 @@ import Footer from "../Footer";
 import {makeStyles} from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import AdminLayout from "../../layouts/AdminLayout";
-import Users from "../Admin/Users";
 import Categories from "../Categories";
 import CourseDetail from "../CourseDetail";
 import MyCourseList from "../MyCourseList";
@@ -20,11 +19,18 @@ import UpdateProfile from "../UpdateProfile";
 import AddCourse from "../AddCourse";
 import VideoPlayer from "../VideoPlayer";
 import Homepage from "../Home/Homepage";
+import Users from "../Admin/Users";
+import ManageCategories from "../Admin/ManageCategories";
+import ManageCourses from "../Admin/ManageCourses";
 
 import ActivateAccount from "../ActivateAccount";
 import store from '../../redux/store'
 import myModel from '../../helpers/myModel'
 import '../../helpers/myFirebase'
+import {
+  Redirect, useRouteMatch
+} from 'react-router-dom';
+
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -96,9 +102,19 @@ const App = ({ location }) => {
                     <Route exact path="/admin/dashboard">
 
                     </Route>
+                    
                     <Route exact path="/admin/users">
                       <Users />
                     </Route>
+
+                    <Route exact path="/admin/categories">
+                      <ManageCategories />
+                    </Route>
+
+                    <Route exact path="/admin/courses">
+                      <ManageCourses />
+                    </Route>
+
                   </Switch>
                 </AdminLayout>
               </Route>
@@ -107,6 +123,9 @@ const App = ({ location }) => {
               </Route>
               <Route exact path="/signup">
                 <Signup />
+              </Route>
+              <Route exact path="/logout">
+                <Logout />
               </Route>
               <Route exact path="/activate" component={ActivateAccount}>
               </Route>
@@ -157,5 +176,19 @@ const App = ({ location }) => {
     </div>
   );
 };
+
+function Logout(){
+
+    localStorage.removeItem('accessToken')
+    localStorage.removeItem('refreshToken')
+    store.dispatch({
+      type: 'set_account',
+      payload: {
+        data: null
+      }
+    })
+
+    return <Redirect to="/login" />
+}
 
 export default App;
