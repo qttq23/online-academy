@@ -26,7 +26,7 @@ export const NestedMenu = () => {
     return (
         <div onContextMenu={handleRightClick} onClick={handleRightClick}>
             <IconButton edge="start" color="inherit" aria-label="menu">
-                <MenuIcon style={{color: "white"}}
+                <MenuIcon style={{color: "#e91e63"}}
                 />
             </IconButton>
 
