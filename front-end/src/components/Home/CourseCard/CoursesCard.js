@@ -86,8 +86,8 @@ export default function CourseCard({course}) {
     }
 
     return (
-        <Card className={classes.root}>
-            <Link to={`/courses/${id}`}>details</Link>
+        <Link to={`/courses/${id}`} style={{ textDecoration: 'none' }}>
+            <Card className={classes.root}>
             <CardActionArea>
                 <CardMedia
                     square
@@ -145,5 +145,6 @@ export default function CourseCard({course}) {
                 </CardContent>
             </CardActionArea>
         </Card>
+        </Link>
     );
 }
