@@ -2,19 +2,22 @@ import { createStore } from 'redux';
 
 
 const initState = {
-    mostViewedCourses: [
-    ],
+    mostViewedCourses: [],
     detailedCourse: null,
     feedbacks: [],
     relatedCourses: [],
     account: null,
     emailNeedValidate: null,
     chapters: [],
-    video: null
+    video: null,
+    categories: [],
+    registeredList: [],
+    watchList: [],
+    teachList: [],
 }
 
 
-const reducer = function (state, { type, payload }) {
+const reducer = function(state, { type, payload }) {
     switch (type) {
         case 'set_mostViewedCourses':
             console.log('store.js: set_mostViewedCourses: ', payload)
@@ -26,7 +29,7 @@ const reducer = function (state, { type, payload }) {
             console.log('store.js: set_detailedCourse: ', payload)
             return {
                 ...state,
-                detailedCourse: { ...payload.data}
+                detailedCourse: { ...payload.data }
             }
         case 'set_feedbacks':
             console.log('store.js: set_feedbacks: ', payload)
@@ -43,7 +46,7 @@ const reducer = function (state, { type, payload }) {
         case 'set_account':
             console.log('store.js: set_account: ', payload)
 
-            if(!payload.data){
+            if (!payload.data) {
                 return {
                     ...state,
                     account: null
@@ -52,7 +55,7 @@ const reducer = function (state, { type, payload }) {
 
             return {
                 ...state,
-                account: {...payload.data}
+                account: { ...payload.data }
             }
         case 'set_chapters':
             console.log('store.js: set_chapters: ', payload)
@@ -61,12 +64,12 @@ const reducer = function (state, { type, payload }) {
                 chapters: [...payload.data]
             }
 
-        // case 'update_account': // payload: {name: 'ssdf'}
-        //     console.log('store.js: update_account: ', payload)
-        //     return {
-        //         ...state,
-        //         account: { ...state.account, ...payload.data }
-        //     }
+            // case 'update_account': // payload: {name: 'ssdf'}
+            //     console.log('store.js: update_account: ', payload)
+            //     return {
+            //         ...state,
+            //         account: { ...state.account, ...payload.data }
+            //     }
         case 'set_emailNeedValidate':
             console.log('store.js: set_emailNeedValidate: ', payload)
             return {
@@ -77,9 +80,32 @@ const reducer = function (state, { type, payload }) {
             console.log('store.js: set_video: ', payload)
             return {
                 ...state,
-                video: {...payload.data}
+                video: { ...payload.data }
             }
-
+        case 'set_categories':
+            console.log('store.js: set_categories: ', payload)
+            return {
+                ...state,
+                categories: [...payload.data]
+            }
+        case 'set_registeredList':
+            console.log('store.js: set_registeredList: ', payload)
+            return {
+                ...state,
+                registeredList: [...payload.data]
+            }
+        case 'set_watchList':
+            console.log('store.js: set_watchList: ', payload)
+            return {
+                ...state,
+                watchList: [...payload.data]
+            }
+        case 'set_teachList':
+            console.log('store.js: set_teachList: ', payload)
+            return {
+                ...state,
+                teachList: [...payload.data]
+            }    
 
         default:
             return state;

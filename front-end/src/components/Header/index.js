@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { fade, makeStyles } from "@material-ui/core/styles";
 import { AppBar, Grid, Hidden, InputAdornment, TextField, Toolbar, Typography } from "@material-ui/core";
 import Button from "@material-ui/core/Button";
@@ -7,10 +7,12 @@ import NestedMenu from "./NestedMenu";
 import IconButton from "@material-ui/core/IconButton";
 import SearchIcon from "@material-ui/icons/Search";
 
+import myRequest from "../../helpers/myRequest";
+import myConfig from '../../helpers/myConfig';
 import store from '../../redux/store'
 import myModel from '../../helpers/myModel'
 import {
-    Link,
+    Link, Redirect
 } from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
@@ -49,15 +51,43 @@ const useStyles = makeStyles((theme) => ({
 const Header = () => {
     const classes = useStyles();
 
+    const [redirectUrl, setRedirectUrl] = useState('');
+    const [keyword, setKeyword] = useState('')
+    function handleKeywordChanged(event){
+        setKeyword(event.target.value)
+    }
+    function handleSearchClicked(){
+        console.log('header: keyword: ', keyword)
+        setRedirectUrl(`/courseList?fields=search&keyword=${keyword}`)
+    }
+
+    useEffect(function(){
+
+        myRequest({
+                method: 'get',
+                url: `${myConfig.apiServerAddress}/api/categories`,
+            },
+            function ok(response) {
+                store.dispatch({
+                    type: 'set_categories',
+                    payload: {
+                        data: response.data
+                    }
+                });
+
+            },
+        )
+    },[])
 
     // render
     let account = store.getState().account
+    let categories = store.getState().categories
 
     return (
         <Grid container>
             <AppBar position="static" className={classes.style}>
                 <Toolbar>
-                    <NestedMenu></NestedMenu>
+                    <NestedMenu categories={categories}></NestedMenu>
                     <Grid item md={2} sm={12}>
                         <Typography variant="h5" className={classes.title}>
                             <NavLink to="/" style={{ textDecoration: "none", color: "#fff" }}>
@@ -77,7 +107,7 @@ const Header = () => {
                                 placeholder="What do you want to learn?"
                                 InputProps={{
                                     startAdornment: (
-                                        <InputAdornment>
+                                        <InputAdornment onClick={handleSearchClicked}>
                                             <IconButton>
                                                 <SearchIcon />
                                             </IconButton>
@@ -87,6 +117,8 @@ const Header = () => {
                                         input: classes.resize,
                                     },
                                 }}
+                                value={keyword}
+                                onChange={handleKeywordChanged}
                             />
 
                         </Hidden>
@@ -138,6 +170,7 @@ const Header = () => {
 
                 </Toolbar>
             </AppBar>
+            {redirectUrl != '' ? (<Redirect to={redirectUrl} />): ''}
         </Grid>
     );
 };

@@ -4,12 +4,11 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import Pagination from '@material-ui/lab/Pagination';
-import MyCourseCard from './MyCourseCard';
+import MyCourseCard from '../MyCourseList/MyCourseCard';
 
 import myRequest from "../../helpers/myRequest";
 import myConfig from '../../helpers/myConfig';
 import store from '../../redux/store'
-
 
 const useStyles = makeStyles((theme) => ({
     heroContent: {
@@ -39,7 +38,7 @@ const myCoursesList = [{
     },
 ];
 
-export default function MyCourseList() {
+export default function MyTeachList() {
     const classes = useStyles();
 
     let account = store.getState().account
@@ -50,16 +49,15 @@ export default function MyCourseList() {
 
         myRequest({
                 method: 'get',
-                url: `${myConfig.apiServerAddress}/api/accountCourses`,
+                url: `${myConfig.apiServerAddress}/api/courses`,
                 params: {
-                    filter: 
-                    `{"where": {"accountId": "${account.id}"}, "include": { "relation": "course", "scope": { "include": ["teacher", "category"]  }  }  }`
+                    filter: `{"where": {"teacherId": "${account.id}"}, "include": ["teacher", "category"]  }`
                 }
             },
             function ok(response) {
 
                 store.dispatch({
-                    type: 'set_registeredList',
+                    type: 'set_teachList',
                     payload: {
                         data: response.data
                     }
@@ -67,34 +65,29 @@ export default function MyCourseList() {
 
             },
             function fail(error) {
-                console.log('registerdlist: error: ')
+                console.log('teachList: error: ')
                 console.log(error.message)
             }
         )
 
     }, [account])
 
-    let registeredList = store.getState().registeredList
-    // let registeredList = []
+    let teachList = store.getState().teachList
 
     return (
         <main>
       <div className={classes.heroContent}>
         <Container maxWidth="md">
           <Typography variant="h6" align="left" color="textSecondary">
-            My registered courses
+            My teaching courses
           </Typography>
         </Container>
       </div>
       <Container className={classes.cardGrid} maxWidth="md">
         <Grid container spacing={2}>
-          {
-            registeredList.map(function(item){
-              return (
-                <MyCourseCard key={item.course.id} course={item.course} />
-                )
-            })
-          }
+          {teachList.map((course) => (
+            <MyCourseCard key={course.title} course={course} />
+          ))}
         </Grid>
       </Container>
       <Grid

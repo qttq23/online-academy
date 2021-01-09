@@ -1,5 +1,18 @@
 import React, { Component, useEffect, useState } from 'react';
-import { Grid, Typography, List, Button, Paper, ListItem, Avatar, LinearProgress } from '@material-ui/core';
+import {
+    Grid,
+    Typography,
+    List,
+    Button,
+    Paper,
+    ListItem,
+    Avatar,
+    LinearProgress,
+    RadioGroup,
+    FormControlLabel,
+    Radio,
+    FormControl
+} from '@material-ui/core';
 import { Rating, Pagination } from '@material-ui/lab';
 import Image from 'material-ui-image';
 
@@ -277,6 +290,167 @@ function CourseDetail(props) {
 
     }
 
+    const [openFeedbackDialog, setOpenFeedbackDialog] = useState(false)
+    const [feedbackAccName, setFeedbackAccName] = useState('thang2')
+    let feedbackComment = ''
+    let feedbackRate = 1
+
+    function handleAddFeedbackClicked(event) {
+        setOpenFeedbackDialog(true);
+
+        let account = store.getState().account
+        setFeedbackAccName(account.name)
+
+
+    }
+
+    function handleFeedbackCloseClicked(event) {
+        setOpenFeedbackDialog(false);
+    }
+
+    function handleCommentChanged(event) {
+        feedbackComment = event.target.value
+    }
+
+    function handleRateChanged(event) {
+        feedbackRate = event.target.value
+    }
+
+    function handleAddFeedbackConfirmed(event) {
+
+        let feedback = {
+            comment: feedbackComment,
+            rate: feedbackRate
+        }
+        console.log('feedback: ', feedback)
+
+        function createFeedback() {
+            myRequest({
+                    method: 'post',
+                    url: `${myConfig.apiServerAddress}/api/feedbacks`,
+                    data: {
+                        accountId: store.getState().account.id,
+                        courseId: course.id,
+                        type: 0,
+                        content: feedbackComment,
+                        ratePoint: feedbackRate,
+                    },
+                    headers: {
+                        'x-access-token': localStorage.getItem('accessToken')
+                    }
+
+                },
+                function ok(response) {
+                    let newFeedback = response.data
+                    newFeedback.account = store.getState().account
+                    store.dispatch({
+                        type: 'set_feedbacks',
+                        payload: {
+                            data: [...feedbacks, response.data]
+                        }
+                    });
+                    // close dialog
+                    setOpenFeedbackDialog(false);
+                },
+                function fail(error) {
+                    alert('fail to add feedback, re-login and try again')
+                    // close dialog
+                    setOpenFeedbackDialog(false);
+                }
+            )
+        }
+        createFeedback()
+    }
+
+    function handlePageChanged(event, pageNumber) {
+        console.log('coursedetail: page: ', pageNumber)
+
+        setNumFeedbackSkip(numFeedback * (pageNumber - 1))
+    }
+
+    function handleWishlistClicked(event) {
+
+        // check if already in watchlist
+        let accountId = store.getState().account.id
+        myRequest({
+                method: 'get',
+                url: `${myConfig.apiServerAddress}/api/watchLists`,
+                params: {
+                    filter: `{"where": {"and": [{"accountId": "${accountId}"}, {"courseId": "${course.id}"} ]}}`
+                }
+            },
+            function ok(response) {
+
+                let list = response.data
+                if (list.length == 0) {
+
+                    console.log('adding to wishlist...')
+                    myRequest({
+                            method: 'post',
+                            url: `${myConfig.apiServerAddress}/api/watchLists`,
+                            data: {
+                                accountId: accountId,
+                                courseId: course.id
+                            },
+                            headers: {
+                                'x-access-token': localStorage.getItem('accessToken')
+                            }
+                        },
+                        function ok(response) {
+
+                            alert(`${course.name} added to wishlist`)
+
+                        },
+                        function fail(error) {
+                            console.log('coursedetail: fail get watchlist')
+                        }
+                    )
+                } else {
+                    alert('already added to wishlist')
+                }
+
+            },
+            function fail(error) {
+                console.log('coursedetail: fail get watchlist')
+            }
+        )
+
+
+    }
+
+    function handleBuyClicked(event) {
+
+        console.log('buying...')
+        
+        if(!localStorage.getItem('accessToken')){
+          alert('create an account to buy this course')
+          return;
+        }
+
+        myRequest({
+                method: 'post',
+                url: `${myConfig.apiServerAddress}/api/accountCourses`,
+                data: {
+                    accountId: account.id,
+                    courseId: course.id
+                },
+                headers: {
+                    'x-access-token': localStorage.getItem('accessToken')
+                }
+            },
+            function ok(response) {
+
+                alert(`${course.name} was bought successfully!`)
+
+            },
+            function fail(error) {
+                console.log('coursedetail: fail to buy')
+            }
+        )
+
+
+    }
+
 
     // get data
     useEffect(() => {
@@ -355,6 +529,15 @@ function CourseDetail(props) {
 
 
     // prepare
+    const authorize_value = {
+        GUEST: 1,
+        TEACHER_OF_COURSE: 5,
+        STUDENT_OF_COURSE: 10
+    }
+    const [authorize, setAuthorize] = useState(authorize_value.GUEST)
+    const [numFeedbackSkip, setNumFeedbackSkip] = useState(0)
+    const numFeedback = 4
+    let account = store.getState().account
     let course = store.getState().detailedCourse
     let feedbacks = store.getState().feedbacks
     let relatedCourses = store.getState().relatedCourses
@@ -379,10 +562,10 @@ function CourseDetail(props) {
         }
 
         price = course.price
-        priceAfterSaleOff = price
-        if (course.saleOffPercent && course.saleOffPercent != 0) {
-            priceAfterSaleOff = course.saleOffPercent * price
-        }
+        priceAfterSaleOff = price * (1 - course.saleOffPercent)
+        // if (course.saleOffPercent && course.saleOffPercent != 0) {
+        //     priceAfterSaleOff = course.saleOffPercent * price
+        // }
 
         imageUrl = course.imageUrl
         courseId = course.id
@@ -390,7 +573,33 @@ function CourseDetail(props) {
 
 
 
+
+        if (account) {
+            if (account.id == course.teacherId && authorize != authorize_value.TEACHER_OF_COURSE) {
+                setAuthorize(authorize_value.TEACHER_OF_COURSE)
+            } else {
+                myRequest({
+                        method: 'get',
+                        url: `${myConfig.apiServerAddress}/api/accountCourses`,
+                        params: {
+                            filter: `{"where": {"and": [{ "courseId": "${course.id}"}, {"accountId": "${account.id}"}]} }`
+                        }
+                    },
+                    function ok(response) {
+
+                        let list = response.data
+                        if (list.length > 0 && authorize != authorize_value.STUDENT_OF_COURSE) {
+                            setAuthorize(authorize_value.STUDENT_OF_COURSE)
+                        }
+
+                    },
+                )
+            }
+
+        }
     }
+
+
 
 
     // render
@@ -432,7 +641,7 @@ function CourseDetail(props) {
                 <Typography variant="subtitle2" style={{ color: 'gold', marginRight: 10 }}>
                   {ratePoint}
                 </Typography>
-                <Rating value={ratePoint} readOnly size="small" style={{ paddingTop: 2, paddingBottom: 2 }} />
+                <Rating value={Math.round(ratePoint)} readOnly size="small" style={{ paddingTop: 2, paddingBottom: 2 }} />
               </Grid>
 
               <Typography variant="caption" style={{ fontSize: 14, color: 'white' }}>
@@ -450,8 +659,21 @@ function CourseDetail(props) {
               </Grid>
 
               <Grid item container style={{ color: 'white', marginTop: 20, display: 'flex' }}>
-                <Button variant="outlined" color="inherit" endIcon={<FavoriteBorderIcon />} style={{ marginRight: 10 }}>Wishlist</Button>
-                <Button variant="outlined" color="inherit" endIcon={<ShareIcon />}>Share</Button>
+                {
+                  authorize == authorize_value.GUEST ?
+                    (
+                      <Button variant="outlined" color="inherit" endIcon={<FavoriteBorderIcon />}
+                        style={{ marginRight: 10 }}
+                        onClick={handleWishlistClicked}
+                        >
+                        Wishlist
+                        </Button>
+                    )
+                    : ''
+                }
+
+                <Button variant="outlined" color="inherit" endIcon={<ShareIcon />}>
+                  Share</Button>
               </Grid>
 
             </List>
@@ -508,14 +730,28 @@ function CourseDetail(props) {
                           })
                         }
                       </List>
-                        <Button variant="outlined" color="inherit" 
-                        onClick={handleAddVideoClicked.bind(null, chapter.id)}>Add video</Button>
+                      {
+                        authorize == authorize_value.TEACHER_OF_COURSE ?
+                          (
+                            <Button variant="outlined" color="inherit"
+                              onClick={handleAddVideoClicked.bind(null, chapter.id)}>Add video</Button>
+                          )
+                          : ''
+                      }
+
                     </ListItem>
                   )
                 })
               }
             </List>
-            <Button variant="outlined" color="inherit" onClick={handleAddChapterClicked}>Add chapter</Button>
+
+            {
+              authorize == authorize_value.TEACHER_OF_COURSE ?
+                (
+                  <Button variant="outlined" color="inherit" onClick={handleAddChapterClicked}>Add chapter</Button>
+                )
+                : ''
+            }
           </Paper>
           {/*------------------Description---------------------*/}
           <Typography
@@ -525,7 +761,7 @@ function CourseDetail(props) {
             }}
           >Description</Typography>
           <Typography variant="p" style={{ marginTop: 20 }}>
-            {course ?  renderHTML(course.longDescription) : 'loading...'}
+            {course ? renderHTML(course.longDescription) : 'loading...'}
           </Typography>
 
           {/*------------------Lecturer---------------------*/}
@@ -553,7 +789,7 @@ function CourseDetail(props) {
               flexDirection: 'row'
             }}>
               <Avatar alt="Remy Sharp" src="https://img-b.udemycdn.com/user/75x75/9685726_67e7_4.jpg?secure=QU9dg6WVqEO3vJRsT2JMsA%3D%3D%2C1608943704" style={{ width: 120, height: 120, marginRight: 10 }} />
-            
+
             </Grid>
             <Typography variant="p" variantMapping="p" style={{ marginTop: 20 }}>
               {course ? course.teacher.description : 'loading...'}
@@ -576,14 +812,14 @@ function CourseDetail(props) {
               flexDirection: 'column'
             }}>
               <Typography variant="h2" style={{ color: 'orange', fontWeight: 'bold' }}>
-                {ratePoint}
+                {Math.round(ratePoint)}
               </Typography>
               <Rating value={ratePoint} precision={0.1} readOnly />
               <Typography variant="subtitle2" style={{ color: 'orange', fontWeight: 'bold' }}>
                 ({timesRate})
                 </Typography>
             </Grid>
-           
+
           </Grid>
 
           {/*------------------Review---------------------*/}
@@ -594,10 +830,23 @@ function CourseDetail(props) {
               marginTop: 20
             }}
           >Reviews</Typography>
+
+          {
+            authorize == authorize_value.STUDENT_OF_COURSE ?
+              (<Button variant="outlined" color="inherit"
+                onClick={handleAddFeedbackClicked}>Add feedback</Button>)
+              : (<h4>Register course to add feedback</h4>)
+          }
+
           <Grid container style={{ marginTop: 20 }}>
             <List>
               {
-                feedbacks.map(function (item) {
+                feedbacks.map(function (item, index) {
+
+                  // use for pagination
+                  if (index < numFeedbackSkip || index >= numFeedbackSkip + numFeedback) {
+                    return ''
+                  }
 
                   return (
                     <ListItem>
@@ -612,13 +861,19 @@ function CourseDetail(props) {
                 })
               }
 
-
-
             </List>
-            <Grid container style={{ display: 'flex', alignContent: 'flex-end' }}>
-              <Grid xs={6} />
-              <Grid xs={6} >
-                <Pagination count={10} page={1} />
+
+            <Grid
+              container
+              spacing={0}
+              direction="column"
+              alignItems="center"
+              justify="center"
+              style={{ minHeight: '5vh' }}
+            >
+              <Grid item xs={12}>
+                <Pagination count={10} shape="rounded" size="large"
+                  onChange={handlePageChanged} />
               </Grid>
             </Grid>
           </Grid>
@@ -644,47 +899,62 @@ function CourseDetail(props) {
           </Grid>
 
         </Grid>
-        <Grid item xs={3} style={{ marginLeft: 10, position: 'absolute', right: 100, bottom: 80 }}>
-          <Paper >
-            <Grid container style={{ padding: 10 }}>
-              <Grid container style={{
-                paddingTop: 20,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'stretch'
-              }}>
-                <Typography variant="h4" style={{ fontWeight: 'bold' }}>
-                  ${priceAfterSaleOff}
-                </Typography>
 
-                {
-                  price == priceAfterSaleOff ? '' : (
-                    <Typography variant="p"
-                      style={{ color: 'grey', marginLeft: 10, textDecoration: 'line-through' }}>
-                      ${price}
-                    </Typography>
-                  )
-                }
-                {
-                  price == priceAfterSaleOff ? '' : (
+        {
+          authorize == authorize_value.GUEST ?
+            (
+              <Grid item xs={3} style={{ marginLeft: 10, position: 'absolute', right: 100, bottom: 80 }}>
+                <Paper >
+                  <Grid container style={{ padding: 10 }}>
+                    <Grid container style={{
+                      paddingTop: 20,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'stretch'
+                    }}>
+                      <Typography variant="h4" style={{ fontWeight: 'bold' }}>
+                        ${priceAfterSaleOff}
+                      </Typography>
 
-                    <Typography variant="p" style={{ marginLeft: 10 }}>
-                      {course ? course.saleOffPercent * 100 : ''}% off
+                      {
+                        price == priceAfterSaleOff ? '' : (
+                          <Typography variant="p"
+                            style={{ color: 'grey', marginLeft: 10, textDecoration: 'line-through' }}>
+                            ${price}
+                          </Typography>
+                        )
+                      }
+                      {
+                        price == priceAfterSaleOff ? '' : (
+
+                          <Typography variant="p" style={{ marginLeft: 10 }}>
+                            {course ? course.saleOffPercent * 100 : ''}% off
                   </Typography>
-                  )
-                }
+                        )
+                      }
 
+                    </Grid>
+
+                    <Button variant="contained" fullWidth color="secondary" 
+                    style={{ marginTop: 20, height: 50, fontWeight: 'bold' }}
+
+                    >
+                      Add to cart
+                </Button>
+                    <Button variant="outlined" fullWidth color="primary" 
+                    style={{ marginTop: 5, height: 50, fontWeight: 'bold' }}
+                       onClick={handleBuyClicked}
+                    >
+                      Buy now
+                </Button>
+                  </Grid>
+                </Paper>
               </Grid>
+            )
+            : ''
+        }
 
-              <Button variant="contained" fullWidth color="secondary" style={{ marginTop: 20, height: 50, fontWeight: 'bold' }}>
-                Add to cart
-                </Button>
-              <Button variant="outlined" fullWidth color="primary" style={{ marginTop: 5, height: 50, fontWeight: 'bold' }}>
-                Buy now
-                </Button>
-            </Grid>
-          </Paper>
-        </Grid>
+
         <Grid xs={1} />
       </Grid>
 
@@ -713,8 +983,8 @@ function CourseDetail(props) {
         </DialogActions>
       </Dialog>
 
-        <Dialog open={openVideoDialog} onClose={handleAddVideoCloseClicked} 
-            aria-labelledby="form-dialog-title">
+      <Dialog open={openVideoDialog} onClose={handleAddVideoCloseClicked}
+        aria-labelledby="form-dialog-title">
         <DialogTitle id="form-dialog-title">Add new video</DialogTitle>
         <DialogContent>
 
@@ -742,6 +1012,53 @@ function CourseDetail(props) {
             Cancel
           </Button>
           <Button onClick={handleAddVideoConfirmed} color="primary">
+            Add
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+
+      <Dialog open={openFeedbackDialog} onClose={handleFeedbackCloseClicked}
+        aria-labelledby="form-dialog-title">
+        <DialogTitle id="form-dialog-title">Add new feedback</DialogTitle>
+        <DialogContent>
+
+          <TextField
+            autoFocus
+            margin="dense"
+            id="accountName"
+            label="your name"
+            type="text"
+            fullWidth
+            value={feedbackAccName}
+            onChange={() => { }}
+          />
+          <TextField
+            autoFocus
+            margin="dense"
+            id="newComment"
+            label="Enter comment"
+            type="text"
+            fullWidth
+            onChange={handleCommentChanged}
+          />
+
+
+          <RadioGroup aria-label="gender" name="gender1" onChange={handleRateChanged}>
+            <FormControlLabel value="1" control={<Radio />} label="1" />
+            <FormControlLabel value="2" control={<Radio />} label="2" />
+            <FormControlLabel value="3" control={<Radio />} label="3" />
+            <FormControlLabel value="4" control={<Radio />} label="4" />
+            <FormControlLabel value="5" control={<Radio />} label="5" />
+          </RadioGroup>
+
+
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleFeedbackCloseClicked} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleAddFeedbackConfirmed} color="primary">
             Add
           </Button>
         </DialogActions>

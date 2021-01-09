@@ -11,6 +11,10 @@ import AdminLayout from "../../layouts/AdminLayout";
 import Users from "../Admin/Users";
 import Categories from "../Categories";
 import CourseDetail from "../CourseDetail";
+import MyCourseList from "../MyCourseList";
+import MyFavoriteList from "../MyFavoriteList";
+import MyTeachList from "../MyTeachList";
+import CourseList from "../CoursesList";
 import Profile from "../Profile";
 import UpdateProfile from "../UpdateProfile";
 import AddCourse from "../AddCourse";
@@ -109,6 +113,20 @@ const App = ({ location }) => {
               <Route exact path="/categories" >
                 <Categories />
               </Route>
+              <Route path="/courseList" component={CourseList}>
+                {/*<CourseList />*/}
+              </Route>
+
+               <Route exact path="/courses/registered" >
+                <MyCourseList />
+              </Route>
+               <Route exact path="/courses/watchlist" >
+                <MyFavoriteList />
+              </Route>
+               <Route exact path="/courses/teachlist" >
+                <MyTeachList />
+              </Route>
+
               <Route exact path="/videos/:videoId" >
                 <VideoPlayer />
               </Route>

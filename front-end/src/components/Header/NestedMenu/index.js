@@ -1,11 +1,22 @@
-import React, {useState} from "react";
-import {Menu, MenuItem} from "@material-ui/core";
+import React, { useState, useEffect } from "react";
+import { Menu, MenuItem } from "@material-ui/core";
 import NestedMenuItem from "material-ui-nested-menu-item";
 import MenuIcon from "@material-ui/icons/Menu";
 import IconButton from "@material-ui/core/IconButton";
 
-export const NestedMenu = () => {
+
+import myRequest from "../../../helpers/myRequest";
+import myConfig from '../../../helpers/myConfig';
+import myModel from '../../../helpers/myModel';
+import store from '../../../redux/store'
+import {
+    Redirect,
+    useRouteMatch
+} from 'react-router-dom';
+
+export const NestedMenu = (props) => {
     const [menuPosition, setMenuPosition] = useState('');
+    const [redirectUrl, setRedirectUrl] = useState('');
 
     const handleRightClick = (event: React.MouseEvent) => {
         if (menuPosition) {
@@ -19,9 +30,35 @@ export const NestedMenu = () => {
     };
 
 
-    const handleItemClick = (event: React.MouseEvent) => {
+    const handleItemClick = (level, id, name, event: React.MouseEvent) => {
+
+        if (level == 1) {
+
+            console.log('nested: topic: ', id)
+            setRedirectUrl(`/courseList?fields=topic&keyword=${id}&name=${name}`)
+        } else if (level == 2) {
+
+            console.log('nested: cat: ', id)
+            setRedirectUrl(`/courseList?fields=categoryId&keyword=${id}&name=${name}`)
+        }
         setMenuPosition(null);
     };
+
+
+    let topics = []
+    props.categories.forEach(function(cat) {
+        if (topics.length == 0 ||
+            topics[topics.length - 1] != cat.topic) {
+            topics.push(cat.topic)
+        }
+
+    })
+    console.log('nested menu: ', topics)
+
+    // redirect
+    // if (redirectUrl != '') {
+    //     return <Redirect to={redirectUrl} />
+    // }
 
     return (
         <div onContextMenu={handleRightClick} onClick={handleRightClick}>
@@ -36,18 +73,34 @@ export const NestedMenu = () => {
                 anchorReference="anchorPosition"
                 anchorPosition={menuPosition}
             >
-                <MenuItem onClick={handleItemClick}>Design</MenuItem>
-                <MenuItem onClick={handleItemClick}>Marketing</MenuItem>
-                <NestedMenuItem
-                    label="Development"
-                    parentMenuOpen={!!menuPosition}
-                    onClick={handleItemClick}
-                >
-                    <MenuItem onClick={handleItemClick}>Web Development</MenuItem>
-                    <MenuItem onClick={handleItemClick}>Mobile Development</MenuItem>
-                </NestedMenuItem>
+
+                {
+                    topics.map(function(topic){
+                        return (
+                            <NestedMenuItem
+                                label={topic}
+                                parentMenuOpen={!!menuPosition}
+                                onClick={handleItemClick.bind(null, 1, topic, topic)}
+                            >
+                            {
+                                props.categories.map(function(cat){
+                                    if(cat.topic == topic){
+                                        return (
+                                        <MenuItem onClick={handleItemClick.bind(null, 2, cat.id, cat.name)}>
+                                        {cat.name}
+                                        </MenuItem>
+                                        )
+                                    }
+                                    return ''
+                                })
+                            }
+                            </NestedMenuItem>
+                        )
+                    })
+                }
 
             </Menu>
+            {redirectUrl != '' ? (<Redirect to={redirectUrl} />): ''}
         </div>
     );
 };

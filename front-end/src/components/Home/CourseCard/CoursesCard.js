@@ -76,10 +76,10 @@ export default function CourseCard({course}) {
         }
 
         price = course.price
-        priceAfterSaleOff = price
-        if(course.saleOffPercent && course.saleOffPercent != 0){
-            priceAfterSaleOff = course.saleOffPercent * price
-        }
+        priceAfterSaleOff = price * (1 - course.saleOffPercent)
+        // if(course.saleOffPercent && course.saleOffPercent != 0){
+        //     priceAfterSaleOff = course.saleOffPercent * price
+        // }
 
         imageUrl = course.imageUrl
         id = course.id
@@ -87,7 +87,8 @@ export default function CourseCard({course}) {
 
     return (
         <Card className={classes.root}>
-            <Link to={`/courses/${id}`}>details</Link>
+            <Link to={`/courses/${id}`}>
+
             <CardActionArea>
                 <CardMedia
                     square
@@ -144,6 +145,8 @@ export default function CourseCard({course}) {
                     </Grid>
                 </CardContent>
             </CardActionArea>
+            
+            </Link>
         </Card>
     );
 }
