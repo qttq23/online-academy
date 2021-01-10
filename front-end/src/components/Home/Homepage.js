@@ -1,41 +1,59 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import BannerExample from "./Carousel/Carousel";
 import HotCourse from "./HotCourse/HotCourse";
 import { makeStyles } from '@material-ui/core/styles'
 
-const useStyles = makeStyles((theme) => ({
-  container: {
-    display: "flex",
-    flexDirection: "column",
-    backgroundColor: "#108690",
-    justifyContent: "center"
-  },
-  carousel: {
-    backgroundColor: "white",
-    width: "fit-content",
-    padding: "10px",
-    borderRadius: "5px",
-    alignSelf: "center",
-    margin: "10px"
-  }
-}))
+import myRequest from "../../helpers/myRequest";
+import myConfig from '../../helpers/myConfig';
+import store from '../../redux/store'
 
-const Homepage = (props) => {
-  const classes = useStyles()
+function Homepage(props) {
 
-  return (
-    <div className={classes.container}>
-      <BannerExample></BannerExample>
-      <div className={classes.carousel}>
-        <h4 style={{ marginLeft: "130px", fontWeight: "Bold", fontSize: "30" }}>MOST VIEWED COURSE</h4>
-        <HotCourse></HotCourse>
-      </div>
-      <div className={classes.carousel}>
-        <h4 style={{ marginLeft: "130px", marginTop: "50px", fontWeight: "Bold", fontSize: "30" }}>HOT COURSE</h4>
-        <HotCourse></HotCourse>
-      </div>
-    </div >
-  )
+    // get data
+    useEffect(() => {
+
+        myRequest(
+            {
+                method: 'get',
+                url: `${myConfig.apiServerAddress}/api/custom/Courses/mostViewed`,
+                params: {
+                    order: -1,
+                    numLimit: 10,
+                    time: myConfig.timeFrom1970InMilliseconds 
+                }
+            },
+            function ok(response){
+                console.log('homepage: data: ')
+                store.dispatch({
+                    type: 'set_mostViewedCourses',
+                    payload: {
+                        data: response.data
+                    }
+                });
+
+            },
+            function fail(error){
+                console.log('homepage: error: ')
+                console.log(error.message)
+            }
+        )
+
+    }, [])
+
+
+    // render
+    return (
+        <div>
+            <BannerExample></BannerExample>
+            <h4 style={{ marginLeft: "130px", fontWeight: "Bold", fontSize: "30" }}>MOST VIEWED COURSE</h4>
+            <HotCourse courseList={store.getState().mostViewedCourses}></HotCourse>
+            <h4 style={{ marginLeft: "130px", marginTop: "50px", fontWeight: "Bold", fontSize: "30" }}>HOT COURSE</h4>
+            <HotCourse></HotCourse>
+
+            {/* <p>{JSON.stringify(store.getState().mostViewedCourses) }</p> */}
+
+        </div>
+    )
 }
 
 export default Homepage

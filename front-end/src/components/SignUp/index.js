@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -12,6 +12,15 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+
+
+import myModel from '../../helpers/myModel'
+import {
+  Redirect,
+} from 'react-router-dom';
+import store from '../../redux/store'
+
+
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -35,87 +44,151 @@ const useStyles = makeStyles((theme) => ({
 export default function SignUp() {
   const classes = useStyles();
 
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [isActivate, setIsActivate] = useState(false)
+
+  function handleNameChanged(event) {
+    setName(event.target.value)
+  }
+  function handleEmailChanged(event) {
+    setEmail(event.target.value)
+  }
+  function handlePasswordChanged(event) {
+    setPassword(event.target.value)
+  }
+
+  function handleSubmitClicked(event) {
+
+    event.preventDefault()
+    event.target.disabled = true
+
+    console.log('signup: name: ', name)
+    console.log('signup: email: ', email)
+    console.log('signup: password: ', password)
+
+    // validate data????
+    // .........
+
+
+    myModel.registerAccount(
+      {
+        name, email, password
+      },
+      function ok(response) {
+
+        // if register ok, re-render view for input activation code
+        setIsActivate(true)
+
+      },
+      function fail(error) {
+        alert(error)
+        // enable button for later try
+        event.target.disabled = false
+      }
+    )
+
+  }
+
+
+
+  // render
+  if(isActivate){
+
+    return <Redirect to={{
+      pathname: "/activate",
+      state: { email: email }
+    }}
+    />
+  }
+
+  // regular view
   return (
-      <Container component="main" maxWidth="sm">
-        <div className={classes.paper}>
-          <Typography component="h1" variant="h5" style={{ color: "#1d1e4e", fontWeight: "bold" }}>
-            Sign Up
+    <Container component="main" maxWidth="xs">
+      <CssBaseline />
+      <div className={classes.paper}>
+        <Avatar className={classes.avatar}>
+          <LockOutlinedIcon />
+        </Avatar>
+        <Typography component="h1" variant="h5">
+          Sign up
           </Typography>
-          <form className={classes.form} noValidate>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                    autoComplete="fname"
-                    name="firstName"
-                    variant="outlined"
-                    required
-                    fullWidth
-                    id="firstName"
-                    label="First Name"
-                    autoFocus
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                    variant="outlined"
-                    required
-                    fullWidth
-                    id="lastName"
-                    label="Last Name"
-                    name="lastName"
-                    autoComplete="lname"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                    variant="outlined"
-                    required
-                    fullWidth
-                    id="email"
-                    label="Email Address"
-                    name="email"
-                    autoComplete="email"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                    variant="outlined"
-                    required
-                    fullWidth
-                    name="password"
-                    label="Password"
-                    type="password"
-                    id="password"
-                    autoComplete="current-password"
-                />
-              </Grid>
-              <Grid item xs={12}>
+        <form className={classes.form} noValidate>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={12}>
+              <TextField
+                autoComplete="fname"
+                name="fullName"
+                variant="outlined"
+                required
+                fullWidth
+                id="fullName"
+                label="Full Name"
+                autoFocus
+
+                value={name}
+                onChange={handleNameChanged}
+              />
+            </Grid>
+
+            <Grid item xs={12}>
+              <TextField
+                variant="outlined"
+                required
+                fullWidth
+                id="email"
+                label="Email Address"
+                name="email"
+                autoComplete="email"
+
+                value={email}
+                onChange={handleEmailChanged}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                variant="outlined"
+                required
+                fullWidth
+                name="password"
+                label="Password"
+                type="password"
+                id="password"
+                autoComplete="current-password"
+
+                value={password}
+                onChange={handlePasswordChanged}
+              />
+            </Grid>
+            {/* <Grid item xs={12}>
                 <FormControlLabel
                     control={<Checkbox value="allowExtraEmails" color="primary" />}
                     label="I want to receive inspiration, marketing promotions and updates via email."
                 />
-              </Grid>
-            </Grid>
-            <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                color="primary"
-                className={classes.submit}
-            >
-              Register
+              </Grid> */}
+          </Grid>
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            color="primary"
+            className={classes.submit}
+            onClick={handleSubmitClicked}
+          >
+            Sign Up
             </Button>
-            <Grid container justify="flex-end">
-              <Grid item>
-                <Link href="/signin" variant="body2">
-                  Already have an account? Sign in
+          <Grid container justify="flex-end">
+            <Grid item>
+              <Link href="/login" variant="body2">
+                Already have an account? Sign in
                 </Link>
-              </Grid>
             </Grid>
-          </form>
-        </div>
-        <Box mt={5}>
-        </Box>
-      </Container>
+          </Grid>
+        </form>
+      </div>
+      <Box mt={5}>
+      </Box>
+    </Container>
   );
 }
