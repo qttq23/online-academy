@@ -7,7 +7,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-* > body {
+*>body {
   margin: 0;
   box-sizing: border-box;
 }
@@ -16,9 +16,11 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
-#root{
-    display: flex;
-    height: 100%;
-    overflow-x: hidden;
-    flex-direction: column;
+
+#root {
+  background-color: #fbfbfb;
+  display: flex;
+  height: 100%;
+  overflow-x: hidden;
+  flex-direction: column;
 }

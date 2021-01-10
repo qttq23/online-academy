@@ -27,375 +27,375 @@ import myConfig from '../../helpers/myConfig';
 import myModel from '../../helpers/myModel';
 import store from '../../redux/store'
 import {
-    BrowserRouter,
-    Switch,
-    Route,
-    Link,
-    Redirect,
-    useRouteMatch,
-    useParams
+  BrowserRouter,
+  Switch,
+  Route,
+  Link,
+  Redirect,
+  useRouteMatch,
+  useParams
 } from 'react-router-dom';
 import renderHTML from 'react-render-html';
 import firebase from '../../helpers/myFirebase.js'
 
 let videoDescription = '',
-    videoFile = {};
+  videoFile = {};
 let targetChapterId = '';
 
 function CourseDetail(props) {
 
-    let { id } = useParams();
-    console.log('coursedetail: ', id)
+  let { id } = useParams();
+  console.log('coursedetail: ', id)
 
-    var storage = firebase.storage().ref('');
-    const [open, setOpen] = useState(false);
-    const [newChapterName, setNewChapterName] = useState('')
-    const handleAddChapterClicked = () => {
-        setOpen(true);
-    };
-    const handleClose = () => {
-        setOpen(false);
-    };
+  var storage = firebase.storage().ref('');
+  const [open, setOpen] = useState(false);
+  const [newChapterName, setNewChapterName] = useState('')
+  const handleAddChapterClicked = () => {
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+  };
 
-    function handleNewChapterNameChanged(event) {
-        setNewChapterName(event.target.value)
+  function handleNewChapterNameChanged(event) {
+    setNewChapterName(event.target.value)
+  }
+
+  function handleAddChapterConfirmed() {
+    // close dialog
+    setOpen(false);
+
+
+    let courseId = store.getState().detailedCourse.id
+
+    let maxOrder = 0
+    let oldChapters = store.getState().chapters
+    oldChapters.forEach(function (chapter) {
+      if (maxOrder < chapter.order) {
+        maxOrder = chapter.order
+      }
+    })
+    let newOrder = maxOrder + 1
+    let newChapter = {
+      courseId,
+      order: newOrder,
+      name: newChapterName
     }
+    console.log(newChapter)
 
-    function handleAddChapterConfirmed() {
-        // close dialog
-        setOpen(false);
+    myModel.createChapter(
+      localStorage.getItem('accessToken'),
+      newChapter,
+      function ok(response) {
 
+        let newChapter = response.data
+        newChapter.videos = []
+        store.dispatch({
+          type: 'set_chapters',
+          payload: {
+            data: [...oldChapters, newChapter]
+          }
+        });
+      },
+      function fail(error) {
+        console.log('fail to add chapter')
+      }
+    )
+  }
 
-        let courseId = store.getState().detailedCourse.id
+  const [openVideoDialog, setOpenVideoDialog] = useState(false);
 
-        let maxOrder = 0
-        let oldChapters = store.getState().chapters
-        oldChapters.forEach(function(chapter) {
-            if (maxOrder < chapter.order) {
-                maxOrder = chapter.order
-            }
-        })
-        let newOrder = maxOrder + 1
-        let newChapter = {
-            courseId,
-            order: newOrder,
-            name: newChapterName
-        }
-        console.log(newChapter)
+  function handleAddVideoClicked(chapterId, event) {
 
-        myModel.createChapter(
-            localStorage.getItem('accessToken'),
-            newChapter,
+    targetChapterId = chapterId
+    setOpenVideoDialog(true);
+  };
+  const handleAddVideoCloseClicked = () => {
+    setOpenVideoDialog(false);
+  };
+
+  function handleVideoDescriptionChanged(event) {
+    videoDescription = event.target.value
+  }
+
+  function handleVideoFileChanged(event) {
+    videoFile = event.target.files[0]
+  }
+
+  function handleAddVideoConfirmed() {
+    // close dialog
+    setOpenVideoDialog(false);
+
+    let targetChapter = chapters[0]
+    chapters.forEach(function (chapter) {
+      if (chapter.id == targetChapterId) {
+        targetChapter = chapter
+      }
+    })
+
+    let maxOrder = 0
+    let oldVideos = targetChapter.videos
+    oldVideos.forEach(function (video) {
+      if (maxOrder < video.order) {
+        maxOrder = video.order
+      }
+    })
+    let newOrder = maxOrder + 1
+
+    let videoName = "" + newOrder + "." + videoFile.name.substring(videoFile.name.lastIndexOf('.') + 1)
+    let videoPath = `course/${course.id}/chapter/${targetChapter.order}/${videoName}`
+
+    let newVideo = {
+      chapterId: targetChapter.id,
+      videoUrl: videoPath,
+      description: videoDescription,
+      order: newOrder
+    }
+    console.log(newVideo)
+
+    function createVideo() {
+      myModel.createVideo(
+        localStorage.getItem('accessToken'),
+        newVideo,
+        function ok(response) {
+
+          let newVideo = response.data
+
+          // upload to storage
+          let accessToken = localStorage.getItem('accessToken')
+          myModel.getStorageToken(
+            accessToken,
             function ok(response) {
 
-                let newChapter = response.data
-                newChapter.videos = []
-                store.dispatch({
-                    type: 'set_chapters',
-                    payload: {
-                        data: [...oldChapters, newChapter]
-                    }
-                });
-            },
-            function fail(error) {
-                console.log('fail to add chapter')
-            }
-        )
-    }
+              let token = response.data.readToken
+              console.log('storage token: ', token)
+              authWithFirebase(token,
+                function ok() {
 
-    const [openVideoDialog, setOpenVideoDialog] = useState(false);
+                  console.log('uploading video...: ')
+                  uploadVideo(
+                    videoPath,
+                    videoFile,
+                    function ok(downloadUrl) {
 
-    function handleAddVideoClicked(chapterId, event) {
-
-        targetChapterId = chapterId
-        setOpenVideoDialog(true);
-    };
-    const handleAddVideoCloseClicked = () => {
-        setOpenVideoDialog(false);
-    };
-
-    function handleVideoDescriptionChanged(event) {
-        videoDescription = event.target.value
-    }
-
-    function handleVideoFileChanged(event) {
-        videoFile = event.target.files[0]
-    }
-
-    function handleAddVideoConfirmed() {
-        // close dialog
-        setOpenVideoDialog(false);
-
-        let targetChapter = chapters[0]
-        chapters.forEach(function(chapter) {
-            if (chapter.id == targetChapterId) {
-                targetChapter = chapter
-            }
-        })
-
-        let maxOrder = 0
-        let oldVideos = targetChapter.videos
-        oldVideos.forEach(function(video) {
-            if (maxOrder < video.order) {
-                maxOrder = video.order
-            }
-        })
-        let newOrder = maxOrder + 1
-
-        let videoName = "" + newOrder + "." + videoFile.name.substring(videoFile.name.lastIndexOf('.') + 1)
-        let videoPath = `course/${course.id}/chapter/${targetChapter.order}/${videoName}`
-
-        let newVideo = {
-            chapterId: targetChapter.id,
-            videoUrl: videoPath,
-            description: videoDescription,
-            order: newOrder
-        }
-        console.log(newVideo)
-
-        function createVideo() {
-            myModel.createVideo(
-                localStorage.getItem('accessToken'),
-                newVideo,
-                function ok(response) {
-
-                    let newVideo = response.data
-
-                    // upload to storage
-                    let accessToken = localStorage.getItem('accessToken')
-                    myModel.getStorageToken(
-                        accessToken,
-                        function ok(response) {
-
-                            let token = response.data.readToken
-                            console.log('storage token: ', token)
-                            authWithFirebase(token,
-                                function ok() {
-
-                                    console.log('uploading video...: ')
-                                    uploadVideo(
-                                        videoPath,
-                                        videoFile,
-                                        function ok(downloadUrl) {
-
-                                            // add to store, re-render
-                                            targetChapter.videos = [...targetChapter.videos, newVideo]
-                                            store.dispatch({
-                                                type: 'set_chapters',
-                                                payload: {
-                                                    data: [...chapters]
-                                                }
-                                            });
-
-                                        },
-                                        function fail() {
-                                            console.log('fail to upload video')
-
-                                        }
-                                    )
-                                },
-                                function fail(error) {
-
-                                    console.log('fail to authen with firebase')
-                                })
-                        },
-                        function fail(error) {
-                            console.log('fail to get storage token')
+                      // add to store, re-render
+                      targetChapter.videos = [...targetChapter.videos, newVideo]
+                      store.dispatch({
+                        type: 'set_chapters',
+                        payload: {
+                          data: [...chapters]
                         }
-                    )
+                      });
 
+                    },
+                    function fail() {
+                      console.log('fail to upload video')
 
-
-
+                    }
+                  )
                 },
                 function fail(error) {
-                    console.log('fail to add video')
-                }
-            )
-        }
 
-        function authWithFirebase(token, okCallback, failCallback) {
-            firebase.auth().signInWithCustomToken(token)
-                .then((user) => {
-                    okCallback()
+                  console.log('fail to authen with firebase')
                 })
-                .catch((error) => {
-                    console.log(error)
-                    failCallback(error)
-                })
+            },
+            function fail(error) {
+              console.log('fail to get storage token')
+            }
+          )
+
+
+
+
+        },
+        function fail(error) {
+          console.log('fail to add video')
         }
+      )
+    }
 
-        function uploadVideo(videoPath, videoFile, okCallback, failCallback) {
+    function authWithFirebase(token, okCallback, failCallback) {
+      firebase.auth().signInWithCustomToken(token)
+        .then((user) => {
+          okCallback()
+        })
+        .catch((error) => {
+          console.log(error)
+          failCallback(error)
+        })
+    }
 
-            var uploadTask = storage.child(
-                videoPath
-            ).put(videoFile);
+    function uploadVideo(videoPath, videoFile, okCallback, failCallback) {
 
-            uploadTask.on(firebase.storage.TaskEvent.STATE_CHANGED,
-                function(snapshot) {
-                    var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                    console.log('Upload is ' + progress + '% done');
-                    switch (snapshot.state) {
-                        case firebase.storage.TaskState.PAUSED: // or 'paused'
-                            console.log('Upload is paused');
-                            break;
-                        case firebase.storage.TaskState.RUNNING: // or 'running'
-                            console.log('Upload is running');
-                            break;
-                    }
-                },
-                function(error) {
+      var uploadTask = storage.child(
+        videoPath
+      ).put(videoFile);
 
-                    window.alert(error)
-                    switch (error.code) {
-                        case 'storage/unauthorized':
-                            // User doesn't have permission to access the object
-                            break;
+      uploadTask.on(firebase.storage.TaskEvent.STATE_CHANGED,
+        function (snapshot) {
+          var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log('Upload is ' + progress + '% done');
+          switch (snapshot.state) {
+            case firebase.storage.TaskState.PAUSED: // or 'paused'
+              console.log('Upload is paused');
+              break;
+            case firebase.storage.TaskState.RUNNING: // or 'running'
+              console.log('Upload is running');
+              break;
+          }
+        },
+        function (error) {
 
-                        case 'storage/canceled':
-                            // User canceled the upload
-                            break;
+          window.alert(error)
+          switch (error.code) {
+            case 'storage/unauthorized':
+              // User doesn't have permission to access the object
+              break;
 
-                        case 'storage/unknown':
-                            // Unknown error occurred, inspect error.serverResponse
-                            break;
-                    }
-                },
-                function() {
-                    console.log('done uploading')
-                    // uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
-                    //     console.log('File available at: ' + downloadURL);
-                    //     okCallback(downloadURL)
-                    // });
-                    okCallback(videoPath)
-                });
+            case 'storage/canceled':
+              // User canceled the upload
+              break;
 
-        }
-
-
-        createVideo()
+            case 'storage/unknown':
+              // Unknown error occurred, inspect error.serverResponse
+              break;
+          }
+        },
+        function () {
+          console.log('done uploading')
+          // uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+          //     console.log('File available at: ' + downloadURL);
+          //     okCallback(downloadURL)
+          // });
+          okCallback(videoPath)
+        });
 
     }
 
 
-    // get data
-    useEffect(() => {
+    createVideo()
 
-        myRequest({
-                method: 'get',
-                url: `${myConfig.apiServerAddress}/api/custom/Courses/ById/${id}`,
-                params: {}
-            },
-            function ok(response) {
-                store.dispatch({
-                    type: 'set_detailedCourse',
-                    payload: {
-                        data: response.data
-                    }
-                });
-
-            },
-        )
-
-        myRequest({
-                method: 'get',
-                url: `${myConfig.apiServerAddress}/api/feedbacks`,
-                params: {
-                    filter: `{"where": {"courseId": "${id}"}, "include": "account"}`
-                }
-            },
-            function ok(response) {
-                store.dispatch({
-                    type: 'set_feedbacks',
-                    payload: {
-                        data: response.data
-                    }
-                });
-
-            },
-        )
-
-        myRequest({
-                method: 'get',
-                url: `${myConfig.apiServerAddress}/api/custom/Courses/${id}/related`,
-                params: {
-                    numLimit: 10
-                }
-            },
-            function ok(response) {
-                store.dispatch({
-                    type: 'set_relatedCourses',
-                    payload: {
-                        data: response.data
-                    }
-                });
-
-            },
-        )
-
-        myRequest({
-                method: 'get',
-                url: `${myConfig.apiServerAddress}/api/chapters`,
-                params: {
-                    filter: `{"where": { "courseId": "${id}"}, "include": "videos"}`
-                }
-            },
-            function ok(response) {
-                store.dispatch({
-                    type: 'set_chapters',
-                    payload: {
-                        data: response.data
-                    }
-                });
-
-            },
-        )
-
-    }, [id])
+  }
 
 
-    // prepare
-    let course = store.getState().detailedCourse
-    let feedbacks = store.getState().feedbacks
-    let relatedCourses = store.getState().relatedCourses
-    let chapters = store.getState().chapters
+  // get data
+  useEffect(() => {
 
-    let ratePoint = 0
-    let timesRate = 0
-    let price = 0
-    let priceAfterSaleOff = 0
-    let category = 'loading...'
-    let imageUrl = myConfig.defaultImageUrl
-    let courseId = ''
-    let updatedAt = '0/0/0'
-    if (course) {
+    myRequest({
+      method: 'get',
+      url: `${myConfig.apiServerAddress}/api/custom/Courses/ById/${id}`,
+      params: {}
+    },
+      function ok(response) {
+        store.dispatch({
+          type: 'set_detailedCourse',
+          payload: {
+            data: response.data
+          }
+        });
 
-        category = `${course.category.topic}/${course.category.name}`
+      },
+    )
 
-        if (course.feedback) {
-            ratePoint = course.feedback.avgRatePoint
-            timesRate = course.feedback.timesRate
+    myRequest({
+      method: 'get',
+      url: `${myConfig.apiServerAddress}/api/feedbacks`,
+      params: {
+        filter: `{"where": {"courseId": "${id}"}, "include": "account"}`
+      }
+    },
+      function ok(response) {
+        store.dispatch({
+          type: 'set_feedbacks',
+          payload: {
+            data: response.data
+          }
+        });
 
-        }
+      },
+    )
 
-        price = course.price
-        priceAfterSaleOff = price
-        if (course.saleOffPercent && course.saleOffPercent != 0) {
-            priceAfterSaleOff = course.saleOffPercent * price
-        }
+    myRequest({
+      method: 'get',
+      url: `${myConfig.apiServerAddress}/api/custom/Courses/${id}/related`,
+      params: {
+        numLimit: 10
+      }
+    },
+      function ok(response) {
+        store.dispatch({
+          type: 'set_relatedCourses',
+          payload: {
+            data: response.data
+          }
+        });
 
-        imageUrl = course.imageUrl
-        courseId = course.id
-        updatedAt = course.updatedAt
+      },
+    )
+
+    myRequest({
+      method: 'get',
+      url: `${myConfig.apiServerAddress}/api/chapters`,
+      params: {
+        filter: `{"where": { "courseId": "${id}"}, "include": "videos"}`
+      }
+    },
+      function ok(response) {
+        store.dispatch({
+          type: 'set_chapters',
+          payload: {
+            data: response.data
+          }
+        });
+
+      },
+    )
+
+  }, [id])
 
 
+  // prepare
+  let course = store.getState().detailedCourse
+  let feedbacks = store.getState().feedbacks
+  let relatedCourses = store.getState().relatedCourses
+  let chapters = store.getState().chapters
+
+  let ratePoint = 0
+  let timesRate = 0
+  let price = 0
+  let priceAfterSaleOff = 0
+  let category = 'loading...'
+  let imageUrl = myConfig.defaultImageUrl
+  let courseId = ''
+  let updatedAt = '0/0/0'
+  if (course) {
+
+    category = `${course.category.topic}/${course.category.name}`
+
+    if (course.feedback) {
+      ratePoint = course.feedback.avgRatePoint
+      timesRate = course.feedback.timesRate
 
     }
 
+    price = course.price
+    priceAfterSaleOff = price
+    if (course.saleOffPercent && course.saleOffPercent != 0) {
+      priceAfterSaleOff = course.saleOffPercent * price
+    }
 
-    // render
-    return (
-        <Grid container>
+    imageUrl = course.imageUrl
+    courseId = course.id
+    updatedAt = course.updatedAt
+
+
+
+  }
+
+
+  // render
+  return (
+    <Grid container>
       <Grid container style={{ backgroundColor: '#1e1e1c' }}>
         <Grid container style={{ marginTop: 40, marginBottom: 40 }}>
           <Grid xs={1} />
@@ -508,7 +508,7 @@ function CourseDetail(props) {
                           })
                         }
                       </List>
-                        <Button variant="outlined" color="inherit" 
+                      <Button variant="outlined" color="inherit"
                         onClick={handleAddVideoClicked.bind(null, chapter.id)}>Add video</Button>
                     </ListItem>
                   )
@@ -525,7 +525,7 @@ function CourseDetail(props) {
             }}
           >Description</Typography>
           <Typography variant="p" style={{ marginTop: 20 }}>
-            {course ?  renderHTML(course.longDescription) : 'loading...'}
+            {course ? renderHTML(course.longDescription) : 'loading...'}
           </Typography>
 
           {/*------------------Lecturer---------------------*/}
@@ -553,7 +553,7 @@ function CourseDetail(props) {
               flexDirection: 'row'
             }}>
               <Avatar alt="Remy Sharp" src="https://img-b.udemycdn.com/user/75x75/9685726_67e7_4.jpg?secure=QU9dg6WVqEO3vJRsT2JMsA%3D%3D%2C1608943704" style={{ width: 120, height: 120, marginRight: 10 }} />
-            
+
             </Grid>
             <Typography variant="p" variantMapping="p" style={{ marginTop: 20 }}>
               {course ? course.teacher.description : 'loading...'}
@@ -583,7 +583,7 @@ function CourseDetail(props) {
                 ({timesRate})
                 </Typography>
             </Grid>
-           
+
           </Grid>
 
           {/*------------------Review---------------------*/}
@@ -670,7 +670,7 @@ function CourseDetail(props) {
 
                     <Typography variant="p" style={{ marginLeft: 10 }}>
                       {course ? course.saleOffPercent * 100 : ''}% off
-                  </Typography>
+                    </Typography>
                   )
                 }
 
@@ -713,8 +713,8 @@ function CourseDetail(props) {
         </DialogActions>
       </Dialog>
 
-        <Dialog open={openVideoDialog} onClose={handleAddVideoCloseClicked} 
-            aria-labelledby="form-dialog-title">
+      <Dialog open={openVideoDialog} onClose={handleAddVideoCloseClicked}
+        aria-labelledby="form-dialog-title">
         <DialogTitle id="form-dialog-title">Add new video</DialogTitle>
         <DialogContent>
 
@@ -749,7 +749,7 @@ function CourseDetail(props) {
 
 
     </Grid >
-    );
+  );
 }
 
-export default CourseDetail;
+export default CourseDetail

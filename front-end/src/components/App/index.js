@@ -10,7 +10,8 @@ import CssBaseline from "@material-ui/core/CssBaseline"
 import AdminLayout from "../../layouts/AdminLayout"
 import Users from "../Admin/Users"
 import Categories from "../Categories"
-import CourseDetail from "../CourseDetail"
+// import CourseDetail from "../CourseDetail"
+import CourseDetail from "../CourseDetail/CourseDetail"
 import Profile from "../Profile"
 import UpdateProfile from "../UpdateProfile"
 import AddCourse from "../AddCourse"
@@ -32,7 +33,7 @@ const useStyles = makeStyles((theme) => ({
     gridTemplateAreas: `"header" 
                          "main" 
                        "footer"`,
-    backgroundColor: "#108690"
+    backgroundColor: "#fbfbfb"
   },
   main: {
     //minHeight: "100vh",
@@ -121,8 +122,8 @@ const App = ({ location }) => {
               </Route>
               {/* <Route exact path="/profile/update">
                 <UpdateProfile />
-              </Route> */}
-              <Route exact path="/addCourse">
+  </Route>*/}
+              <Route exact path="/add-course">
                 <AddCourse />
               </Route>
               <Route path="/">
