@@ -129,11 +129,11 @@ const CourseDetail = (props) => {
         container
         style={{
           backgroundColor: "#1e1e1c",
-          padding: "50px 0",
+          padding: "50px 10px",
         }}
       >
-        <Grid xs={2} />
-        <Grid xs={5}>
+        <Grid xs={0} md={1} lg={2} xl={3} />
+        <Grid xs={8} md={6} lg={5} xl={4}>
           <List style={{
 
           }}>
@@ -217,17 +217,16 @@ const CourseDetail = (props) => {
             </Grid>
           </List>
         </Grid>
-        <Grid xs={5} />
+        <Grid xs={4} md={5} lg={5} xl={5} />
       </Grid>
       <Grid container
         style={{
-
+          padding: "0 10px",
         }}
       >
-        <Grid xs={2} />
-        <Grid
+        <Grid xs={0} md={1} lg={2} xl={3} />
+        <Grid xs={8} md={6} lg={5} xl={4}
           item
-          xs={5}
           style={{
             display: "flex",
             margin: "5px 0",
@@ -383,66 +382,51 @@ const CourseDetail = (props) => {
           >
             Feedbacks
           </Typography>
-          <Grid
-            container
-          >
-            <Grid xs={8}>
-              <List>
-                {[0, 1, 2, 3, 4].map((item, index) => {
-                  return (<ListItem>
-                    <ListItemText>comment{index}</ListItemText>
-                  </ListItem>)
-                })}
-              </List>
-            </Grid>
-            <Grid xs={4}>
-              <TextField
-                id="outlined-multiline-static"
-                label="Feedback"
-                multiline
-                rows={4}
-                variant="outlined"
-                style={{ width: "100%" }}
-              />
-              <Button className="submit-button">Submit</Button>
-            </Grid>
+          <Grid item>
+            <List>
+              {[0, 1, 2, 3, 4].map((item, index) => {
+                return (<ListItem>
+                  <ListItemText>comment{index}</ListItemText>
+                </ListItem>)
+              })}
+            </List>
           </Grid>
           <HotCourse />
         </Grid>
-        <Grid
+        <Grid xs={4} md={4} lg={3} xl={3}
           container
-          xs={3}
           style={{
           }}
         >
           <Card
             style={{
               position: "sticky",
-              top: 20,
+              top: 10,
               height: "fit-content",
-              padding: "5px",
-              margin: "20px",
-              marginTop: "-50%",
+              padding: "2px",
+              marginLeft: "10px",
+              marginTop: "-60%",
               width: "100%"
             }}
           >
-            <div>
+            <div style={{ height: "fit-content" }}>
               <img src={result.image} alt={result.name} style={{
                 width: "100%"
               }} />
             </div>
-            <CardActions
+            <div
               style={{
                 display: "flex",
-                justifyContent: "center",
+                flexDirection: "column",
+                margin: 0,
               }}
             >
-              <Button variant="contained" color="primary">PURCHASE</Button>
-              <Button variant="outlined" color="secondary">WISHLIST</Button>
-            </CardActions>
+              <Button variant="contained" color="primary" style={{ width: "100%", marginBottom: "5px" }}>PURCHASE</Button>
+              <Button variant="outlined" color="secondary" style={{ width: "100%" }}>WISHLIST</Button>
+            </div>
           </Card>
         </Grid>
-        <Grid xs={2} />
+        <Grid xs={0} md={1} lg={2} xl={2} />
       </Grid>
     </Grid>
   )
