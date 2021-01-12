@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import './style.css'
 
 import { useParams } from 'react-router'
 
-import { List, ListItem, ListSubheader, ListItemText, Button, TextField, Collapse, Card, CardMedia, CardActions } from '@material-ui/core'
+import { List, ListItem, ListSubheader, ListItemText, Button, TextField, Collapse, Card, CardActions, Divider } from '@material-ui/core'
 import { Grid, Typography, Paper, Avatar, } from '@material-ui/core'
 import { ExpandLess, ExpandMore, Update } from '@material-ui/icons'
 import ListItemLink from './ListItemLink/ListItemLink'
@@ -45,11 +45,11 @@ const CourseDetail = (props) => {
     sections: [
       {
         __section_id: "course_01-section_01",
-        name: "01",
+        name: "01 - Getting Started",
       },
       {
         __section_id: "course_01-section_02",
-        name: "02",
+        name: "02 - Installation",
       }
     ],
     videos: [
@@ -116,8 +116,11 @@ const CourseDetail = (props) => {
     return state
   })
 
+
   const handleClick = (name) => {
-    setOpen(isOpened[name] = !isOpened[name])
+    console.log(isOpened)
+    setOpen({ ...isOpened, [name]: !isOpened[name] })
+    console.log(isOpened)
   }
 
   return (
@@ -129,10 +132,10 @@ const CourseDetail = (props) => {
           padding: "50px 0",
         }}
       >
-        <Grid xs={1} />
-        <Grid xs={7}>
+        <Grid xs={2} />
+        <Grid xs={5}>
           <List style={{
-            justifyContent: "space-between"
+
           }}>
             <Typography
               variant="h3"
@@ -147,7 +150,7 @@ const CourseDetail = (props) => {
             <Typography
               variant="subtitle1"
               style={{
-                fontSize: 18,
+                fontSize: 28,
                 margin: "5px 0",
                 color: "#ffffff"
               }}
@@ -165,13 +168,16 @@ const CourseDetail = (props) => {
             >
               <Typography
                 variant="subtitle2"
+                style={{
+                  fontSize: 18
+                }}
               >
                 {result.rate}
               </Typography>
               <Rating
                 value={result.rate}
                 readOnly
-                size="small"
+                size="medium"
                 style={{
                   padding: "2px 0"
                 }}
@@ -180,7 +186,7 @@ const CourseDetail = (props) => {
             <Typography
               variant="caption"
               style={{
-                fontSize: 14,
+                fontSize: 18,
                 margin: "5px 0",
                 color: "#ffffff"
               }}
@@ -202,6 +208,7 @@ const CourseDetail = (props) => {
               <Typography
                 variant="caption"
                 style={{
+                  fontSize: 18,
                   whiteSpace: "nowrap"
                 }}
               >
@@ -210,17 +217,17 @@ const CourseDetail = (props) => {
             </Grid>
           </List>
         </Grid>
-        <Grid xs={4} />
+        <Grid xs={5} />
       </Grid>
       <Grid container
         style={{
 
         }}
       >
-        <Grid xs={1} />
+        <Grid xs={2} />
         <Grid
           item
-          xs={7}
+          xs={5}
           style={{
             display: "flex",
             margin: "5px 0",
@@ -245,7 +252,7 @@ const CourseDetail = (props) => {
           >
             <List
               subheader={
-                <ListSubheader compoenent="div">
+                <ListSubheader compoenent="p">
                   <Typography
                     variant="caption"
                     style={{
@@ -257,12 +264,19 @@ const CourseDetail = (props) => {
                 </ListSubheader>
               }
             >
-              {result.sections.map((section) => {
+              {result.sections.map((section, index) => {
                 return (
-                  <div>
-                    <ListItem button onClick={() => handleClick(section.name)}>
+                  <>
+                    <ListItem
+                      button
+                      onClick={() => handleClick(section.name)}
+                      style={{
+                        color: "#333333",
+                        backgroundColor: "#eeeeee"
+                      }}
+                    >
                       {isOpened[section.name] ? <ExpandLess /> : <ExpandMore />}
-                      <ListItemText primary={section.name} />
+                      <ListItemText primary={section.name} style={{ color: "#333333" }} />
                     </ListItem>
                     <Collapse
                       in={isOpened[section.name]}
@@ -272,17 +286,24 @@ const CourseDetail = (props) => {
                       <List
                         disablePadding
                       >
-                        {result.videos.map((video) => {
+                        {result.videos.map((video, index) => {
                           if (video.__section_id === section.__section_id)
                             return (
-                              <ListItemLink href={video.link}>
-                                <ListItemText primary={video.name} />
-                              </ListItemLink>
+                              <>
+                                <ListItemLink href={video.link}>
+                                  <ListItemText
+                                    primary={video.name}
+                                    style={{ color: "#333333" }}
+                                  />
+                                </ListItemLink>
+                                {index !== result.videos.length ? <Divider /> : null}
+                              </>
                             )
                         })}
                       </List>
                     </Collapse>
-                  </div>
+                    {index !== result.sections.length ? <Divider /> : null}
+                  </>
                 )
               })}
             </List>
@@ -392,30 +413,28 @@ const CourseDetail = (props) => {
           container
           xs={3}
           style={{
-
           }}
         >
           <Card
             style={{
               position: "sticky",
-              height: 250,
               top: 20,
+              height: "fit-content",
+              padding: "5px",
               margin: "20px",
-              marginTop: -275,
+              marginTop: "-50%",
               width: "100%"
             }}
           >
-            <CardMedia
-              image={result.image}
-              style={{
-                height: 200
-              }}
-            />
+            <div>
+              <img src={result.image} alt={result.name} style={{
+                width: "100%"
+              }} />
+            </div>
             <CardActions
               style={{
                 display: "flex",
-                justifyContent: "space-around",
-                width: "100%"
+                justifyContent: "center",
               }}
             >
               <Button variant="contained" color="primary">PURCHASE</Button>
@@ -423,7 +442,7 @@ const CourseDetail = (props) => {
             </CardActions>
           </Card>
         </Grid>
-        <Grid xs={1} />
+        <Grid xs={2} />
       </Grid>
     </Grid>
   )
