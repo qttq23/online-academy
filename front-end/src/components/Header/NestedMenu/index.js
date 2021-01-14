@@ -47,8 +47,7 @@ export const NestedMenu = (props) => {
 
     let topics = []
     props.categories.forEach(function(cat) {
-        if (topics.length == 0 ||
-            topics[topics.length - 1] != cat.topic) {
+        if (!topics.includes(cat.topic)) {
             topics.push(cat.topic)
         }
 

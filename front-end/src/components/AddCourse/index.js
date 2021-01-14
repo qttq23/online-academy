@@ -30,7 +30,8 @@ function AddCourse(props) {
     const [isRedirect, setIsRedirect] = useState(false)
     const [newCourseId, setNewCourseId] = useState('')
     let { path, url } = useRouteMatch();
-    let myImage = {}
+    // let myImage = {}
+    const [myImage, setMyImage] = useState({})
     var storage = firebase.storage().ref('');
 
     function handleNameChanged(event) {
@@ -253,7 +254,8 @@ function AddCourse(props) {
 
     function handleFile(file) {
         console.log('event file: ', file)
-        myImage = file
+        // myImage = file
+        setMyImage(file)
     }
 
     useEffect(function() {

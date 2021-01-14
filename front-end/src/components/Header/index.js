@@ -203,6 +203,22 @@ const Header = () => {
                                                 >
                                         <MenuItem onClick={()=>{setMenuPosition(null)}}>Teach List</MenuItem>
                                         </NavLink>
+
+                                      
+                                    )
+                                    : ''
+                                }
+                                {
+                                    account && account.type == 1 ? 
+                                    (
+                                        <NavLink
+                                            to="/addCourse"
+                                            style={{ textDecoration: "none", color: "#00f" }}
+                                                >
+                                        <MenuItem onClick={()=>{setMenuPosition(null)}}>Add Course</MenuItem>
+                                        </NavLink>
+
+                                      
                                     )
                                     : ''
                                 }
