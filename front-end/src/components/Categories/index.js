@@ -1,26 +1,26 @@
-import React from 'react';
-import { Grid, Typography, Hidden, Card, CardHeader, List, ListItem, Collapse, FormGroup, ListItemText, Divider, Container, Checkbox, FormControl, Radio, RadioGroup, FormControlLabel } from '@material-ui/core';
-import { ExpandLess, ExpandMore } from '@material-ui/icons';
-import { Rating } from '@material-ui/lab';
+import React, { useState } from 'react'
+import { Grid, Typography, Hidden, Card, CardHeader, List, ListItem, Collapse, FormGroup, ListItemText, Divider, Container, Checkbox, FormControl, Radio, RadioGroup, FormControlLabel } from '@material-ui/core'
+import { ExpandLess, ExpandMore } from '@material-ui/icons'
+import { Rating } from '@material-ui/lab'
 
-import CourseTile from './CourseTile';
+import CourseTile from './CourseTile'
 
-function Categories(props) {
-  const [state, setState] = React.useState({
+const Categories = (props) => {
+  const [state, setState] = useState({
     openRating: false,
     openPrice: false,
     paid: false,
     free: false
-  });
-  const [value, setValue] = React.useState(5);
+  })
+  const [value, setValue] = useState(5)
 
   const handleChange = (event) => {
     if (event.target.name === "rating")
-      setValue(+event.target.value);
+      setValue(+event.target.value)
     else {
-      setState({ ...state, [event.target.name]: event.target.checked });
+      setState({ ...state, [event.target.name]: event.target.checked })
     }
-  };
+  }
   const handleRating = () => {
     setState({ ...state, openRating: !state.openRating })
   }
@@ -29,7 +29,7 @@ function Categories(props) {
   }
 
   return (
-    <Grid>
+    <Grid style={{ margin: "20px 50px", padding: "10px", backgroundColor: "white", borderRadius: "5px" }} >
       <Grid item container>
         <Grid item />
         <Grid item xs={4} style={{ marginLeft: 30, marginTop: 50 }}>
@@ -41,89 +41,59 @@ function Categories(props) {
         <Grid item xs={4} style={{ marginLeft: 30, marginTop: 50 }}>
           <Typography variant="h5" style={{ fontWeight: '700' }}>All topics</Typography>
         </Grid>
-        <Grid item container spacing={2} direction="row" style={{ marginTop: 5, marginLeft: 20 }}>
+        <Grid item container spacing={2} direction="row" style={{ marginTop: 5, marginLeft: 20, justifyContent: "center" }}>
           <Grid item xs={5} sm={4} md={2}>
             <Card variant="outlined" >
-              <CardHeader title="Web Development" style={{ textAlign: 'center', fontWeight: '700', color: '#0f7c90' }} disableTypography />
+              <CardHeader title="Web Development" style={{ textAlign: 'center', fontWeight: '700', color: '#e91e63' }} disableTypography />
             </Card >
           </Grid>
           <Grid item xs={5} sm={4} md={2}>
             <Card variant="outlined" >
-              <CardHeader title="Web Development" style={{ textAlign: 'center', fontWeight: '700', color: '#0f7c90' }} disableTypography />
-            </Card >
-          </Grid>
-          <Hidden only={['md', 'lg']}>
-            <Grid item xs={1} sm={2} md={0}></Grid>
-            <Grid item xs={1} sm={2} md={0}></Grid>
-          </Hidden>
-          <Grid item xs={5} sm={4} md={2}>
-            <Card variant="outlined" >
-              <CardHeader title="Web Development" style={{ textAlign: 'center', fontWeight: '700', color: '#0f7c90' }} disableTypography />
+              <CardHeader title="Web Development" style={{ textAlign: 'center', fontWeight: '700', color: '#e91e63' }} disableTypography />
             </Card >
           </Grid>
           <Grid item xs={5} sm={4} md={2}>
             <Card variant="outlined" >
-              <CardHeader title="Web Development" style={{ textAlign: 'center', fontWeight: '700', color: '#0f7c90' }} disableTypography />
+              <CardHeader title="Web Development" style={{ textAlign: 'center', fontWeight: '700', color: '#e91e63' }} disableTypography />
             </Card >
           </Grid>
-          <Hidden only={['md', 'lg']}>
-            <Grid item xs={1} sm={2} md={0}></Grid>
-            <Grid item xs={1} sm={2} md={0}></Grid>
-          </Hidden>
           <Grid item xs={5} sm={4} md={2}>
             <Card variant="outlined" >
-              <CardHeader title="Web Development" style={{ textAlign: 'center', fontWeight: '700', color: '#0f7c90' }} disableTypography />
+              <CardHeader title="Web Development" style={{ textAlign: 'center', fontWeight: '700', color: '#e91e63' }} disableTypography />
             </Card >
           </Grid>
-          <Hidden only={['md', 'lg']}>
-            <Grid item xs={5} sm={4}>
-              <Card variant="outlined" >
-                <CardHeader title="Web Development" style={{ textAlign: 'center', fontWeight: '700', color: '#0f7c90' }} disableTypography />
-              </Card >
-            </Grid>
-          </Hidden>
+          <Grid item xs={5} sm={4} md={2}>
+            <Card variant="outlined" >
+              <CardHeader title="Web Development" style={{ textAlign: 'center', fontWeight: '700', color: '#e91e63' }} disableTypography />
+            </Card >
+          </Grid>
         </Grid>
-        <Grid item container spacing={2} direction="row" style={{ marginTop: 5, marginLeft: 20 }}>
+        <Grid item container spacing={2} direction="row" style={{ marginTop: 5, marginLeft: 20, justifyContent: "center" }}>
           <Grid item xs={5} sm={4} md={2}>
             <Card variant="outlined" >
-              <CardHeader title="Web Development" style={{ textAlign: 'center', fontWeight: '700', color: '#0f7c90' }} disableTypography />
+              <CardHeader title="Web Development" style={{ textAlign: 'center', fontWeight: '700', color: '#e91e63' }} disableTypography />
             </Card >
           </Grid>
           <Grid item xs={5} sm={4} md={2}>
             <Card variant="outlined" >
-              <CardHeader title="Web Development" style={{ textAlign: 'center', fontWeight: '700', color: '#0f7c90' }} disableTypography />
-            </Card >
-          </Grid>
-          <Hidden only={['md', 'lg']}>
-            <Grid item xs={1} sm={2} md={0}></Grid>
-            <Grid item xs={1} sm={2} md={0}></Grid>
-          </Hidden>
-          <Grid item xs={5} sm={4} md={2}>
-            <Card variant="outlined" >
-              <CardHeader title="Web Development" style={{ textAlign: 'center', fontWeight: '700', color: '#0f7c90' }} disableTypography />
+              <CardHeader title="Web Development" style={{ textAlign: 'center', fontWeight: '700', color: '#e91e63' }} disableTypography />
             </Card >
           </Grid>
           <Grid item xs={5} sm={4} md={2}>
             <Card variant="outlined" >
-              <CardHeader title="Web Development" style={{ textAlign: 'center', fontWeight: '700', color: '#0f7c90' }} disableTypography />
+              <CardHeader title="Web Development" style={{ textAlign: 'center', fontWeight: '700', color: '#e91e63' }} disableTypography />
             </Card >
           </Grid>
-          <Hidden only={['md', 'lg']}>
-            <Grid item xs={1} sm={2} md={0}></Grid>
-            <Grid item xs={1} sm={2} md={0}></Grid>
-          </Hidden>
           <Grid item xs={5} sm={4} md={2}>
             <Card variant="outlined" >
-              <CardHeader title="Web Development" style={{ textAlign: 'center', fontWeight: '700', color: '#0f7c90' }} disableTypography />
+              <CardHeader title="Web Development" style={{ textAlign: 'center', fontWeight: '700', color: '#e91e63' }} disableTypography />
             </Card >
           </Grid>
-          <Hidden only={['md', 'lg']}>
-            <Grid item xs={5} sm={4}>
-              <Card variant="outlined" >
-                <CardHeader title="Web Development" style={{ textAlign: 'center', fontWeight: '700', color: '#0f7c90' }} disableTypography />
-              </Card >
-            </Grid>
-          </Hidden>
+          <Grid item xs={5} sm={4} md={2}>
+            <Card variant="outlined" >
+              <CardHeader title="Web Development" style={{ textAlign: 'center', fontWeight: '700', color: '#e91e63' }} disableTypography />
+            </Card >
+          </Grid>
         </Grid>
       </Grid>
       <Grid item container style={{ marginTop: 50, marginLeft: 20 }}>
@@ -152,7 +122,9 @@ function Categories(props) {
                           justifyContent: 'space-around',
                           alignItems: 'center'
                         }}>
-                          <Rating name="read-only" value={5} readOnly size="small" />
+                          <Rating name="read-only" value={5} readOnly size="small" style={{
+                            color: "#e91e63"
+                          }}/>
                         </Container>
                       } control={<Radio />} value={5} />
                       <FormControlLabel label={
@@ -162,7 +134,10 @@ function Categories(props) {
                           justifyContent: 'space-around',
                           alignItems: 'center'
                         }}>
-                          <Rating name="read-only" value={4} readOnly size="small" />
+                          <Rating name="read-only" value={4} readOnly size="small"
+                          style={{
+                            color: "#e91e63"
+                          }}/>
                         </Container>
                       } control={<Radio />} value={4} />
                       <FormControlLabel label={
@@ -172,7 +147,10 @@ function Categories(props) {
                           justifyContent: 'space-around',
                           alignItems: 'center'
                         }}>
-                          <Rating name="read-only" value={3} readOnly size="small" />
+                          <Rating name="read-only" value={3} readOnly size="small" 
+                          style={{
+                            color: "#e91e63"
+                          }}/>
                         </Container>
                       } control={<Radio />} value={3} />
                       <FormControlLabel label={
@@ -182,7 +160,10 @@ function Categories(props) {
                           justifyContent: 'space-around',
                           alignItems: 'center'
                         }}>
-                          <Rating name="read-only" value={2} readOnly size="small" />
+                          <Rating name="read-only" value={2} readOnly size="small" 
+                          style={{
+                            color: "#e91e63"
+                          }}/>
                         </Container>
                       } control={<Radio />} value={2} />
                       <FormControlLabel label={
@@ -192,7 +173,10 @@ function Categories(props) {
                           justifyContent: 'space-around',
                           alignItems: 'center'
                         }}>
-                          <Rating name="read-only" value={1} readOnly size="small" />
+                          <Rating name="read-only" value={1} readOnly size="small" 
+                          style={{
+                            color: "#e91e63"
+                          }}/>
                         </Container>
                       } control={<Radio />} value={1} />
                     </RadioGroup>
@@ -213,7 +197,6 @@ function Categories(props) {
                           checked={state.paid}
                           onChange={handleChange}
                           name="paid"
-                          color="primary"
                         />
                       }
                       label="Paid"
@@ -224,7 +207,6 @@ function Categories(props) {
                           checked={state.free}
                           onChange={handleChange}
                           name="free"
-                          color="primary"
                         />
                       }
                       label="Free"
@@ -350,7 +332,7 @@ function Categories(props) {
         </Grid>
       </Grid>
     </Grid>
-  );
+  )
 }
 
-export default Categories;
+export default Categories

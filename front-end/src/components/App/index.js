@@ -1,9 +1,10 @@
+
 import React from "react";
 import {BrowserRouter as Router, Route, Switch} from "react-router-dom";
 import {Grid} from "@material-ui/core";
 import Header from "../Header";
 import Login from "../Login";
-import Signup from "../Signup";
+import SignUp from "../Signup";
 import Footer from "../Footer";
 import {makeStyles} from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
@@ -22,6 +23,7 @@ import Homepage from "../Home/Homepage";
 import Users from "../Admin/Users";
 import ManageCategories from "../Admin/ManageCategories";
 import ManageCourses from "../Admin/ManageCourses";
+
 
 import ActivateAccount from "../ActivateAccount";
 import store from '../../redux/store'
@@ -42,6 +44,7 @@ const useStyles = makeStyles((theme) => ({
     gridTemplateAreas: `"header" 
                          "main" 
                        "footer"`,
+    backgroundColor: "#fbfbfb"
   },
   main: {
     //minHeight: "100vh",
@@ -52,10 +55,10 @@ const useStyles = makeStyles((theme) => ({
     //alignSelf: "flex-end",
     //marginTop: "auto",
   },
-}));
+}))
 
 const App = ({ location }) => {
-  const classes = useStyles();
+  const classes = useStyles()
 
 
   let accessToken = localStorage.getItem('accessToken')
@@ -89,7 +92,6 @@ const App = ({ location }) => {
   return (
     <div>
       <Router>
-        <CssBaseline />
         <Grid container direction="column" className={classes.root}>
           <Grid item xs>
             <Header />
@@ -118,11 +120,12 @@ const App = ({ location }) => {
                   </Switch>
                 </AdminLayout>
               </Route>
-              <Route exact path="/login" component={Login}>
-                {/* <Login /> */}
+              <Route exact path="/signin">
+                {/* <SignIn /> */}
+                <Login />
               </Route>
               <Route exact path="/signup">
-                <Signup />
+                <SignUp />
               </Route>
               <Route exact path="/logout">
                 <Logout />
@@ -157,8 +160,8 @@ const App = ({ location }) => {
               </Route>
               {/* <Route exact path="/profile/update">
                 <UpdateProfile />
-              </Route> */}
-              <Route exact path="/addCourse">
+  </Route>*/}
+              <Route exact path="/add-course">
                 <AddCourse />
               </Route>
               <Route path="/">
@@ -168,14 +171,15 @@ const App = ({ location }) => {
           </Grid>
           {window.location.pathname.includes("/admin") !== -1 ? (
             <Grid item xs>
-              <Footer item classname={classes.footer} />
+              <Footer item className={classes.footer} />
             </Grid>
           ) : null}
         </Grid>
       </Router>
     </div>
-  );
-};
+  )
+}
+
 
 function Logout(){
 

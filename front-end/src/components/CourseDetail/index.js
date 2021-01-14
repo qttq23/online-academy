@@ -1,17 +1,17 @@
 import React, { Component, useEffect, useState } from 'react';
 import {
-    Grid,
-    Typography,
-    List,
-    Button,
-    Paper,
-    ListItem,
-    Avatar,
-    LinearProgress,
-    RadioGroup,
-    FormControlLabel,
-    Radio,
-    FormControl
+  Grid,
+  Typography,
+  List,
+  Button,
+  Paper,
+  ListItem,
+  Avatar,
+  LinearProgress,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
+  FormControl
 } from '@material-ui/core';
 import { Rating, Pagination } from '@material-ui/lab';
 import Image from 'material-ui-image';
@@ -40,571 +40,579 @@ import myConfig from '../../helpers/myConfig';
 import myModel from '../../helpers/myModel';
 import store from '../../redux/store'
 import {
-    BrowserRouter,
-    Switch,
-    Route,
-    Link,
-    Redirect,
-    useRouteMatch,
-    useParams
+  BrowserRouter,
+  Switch,
+  Route,
+  Link,
+  Redirect,
+  useRouteMatch,
+  useParams
 } from 'react-router-dom';
 import renderHTML from 'react-render-html';
 import firebase from '../../helpers/myFirebase.js'
 
 let videoDescription = '',
-    videoFile = {};
+  videoFile = {};
 let targetChapterId = '';
 
 function CourseDetail(props) {
 
-    let { id } = useParams();
-    console.log('coursedetail: ', id)
+  let { id } = useParams();
+  console.log('coursedetail: ', id)
 
-    var storage = firebase.storage().ref('');
-    const [open, setOpen] = useState(false);
-    const [newChapterName, setNewChapterName] = useState('')
-    const handleAddChapterClicked = () => {
-        setOpen(true);
-    };
-    const handleClose = () => {
-        setOpen(false);
-    };
+  var storage = firebase.storage().ref('');
+  const [open, setOpen] = useState(false);
+  const [newChapterName, setNewChapterName] = useState('')
+  const handleAddChapterClicked = () => {
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+  };
 
-    function handleNewChapterNameChanged(event) {
-        setNewChapterName(event.target.value)
+  function handleNewChapterNameChanged(event) {
+    setNewChapterName(event.target.value)
+  }
+
+  function handleAddChapterConfirmed() {
+    // close dialog
+    setOpen(false);
+
+
+    let courseId = store.getState().detailedCourse.id
+
+    let maxOrder = 0
+    let oldChapters = store.getState().chapters
+    oldChapters.forEach(function (chapter) {
+      if (maxOrder < chapter.order) {
+        maxOrder = chapter.order
+      }
+    })
+    let newOrder = maxOrder + 1
+    let newChapter = {
+      courseId,
+      order: newOrder,
+      name: newChapterName
     }
+    console.log(newChapter)
 
-    function handleAddChapterConfirmed() {
-        // close dialog
-        setOpen(false);
+    myModel.createChapter(
+      localStorage.getItem('accessToken'),
+      newChapter,
+      function ok(response) {
 
+        let newChapter = response.data
+        newChapter.videos = []
+        store.dispatch({
+          type: 'set_chapters',
+          payload: {
+            data: [...oldChapters, newChapter]
+          }
+        });
+      },
+      function fail(error) {
+        console.log('fail to add chapter')
+      }
+    )
+  }
 
-        let courseId = store.getState().detailedCourse.id
+  const [openVideoDialog, setOpenVideoDialog] = useState(false);
 
-        let maxOrder = 0
-        let oldChapters = store.getState().chapters
-        oldChapters.forEach(function(chapter) {
-            if (maxOrder < chapter.order) {
-                maxOrder = chapter.order
-            }
-        })
-        let newOrder = maxOrder + 1
-        let newChapter = {
-            courseId,
-            order: newOrder,
-            name: newChapterName
-        }
-        console.log(newChapter)
+  function handleAddVideoClicked(chapterId, event) {
 
-        myModel.createChapter(
-            localStorage.getItem('accessToken'),
-            newChapter,
+    targetChapterId = chapterId
+    setOpenVideoDialog(true);
+  };
+  const handleAddVideoCloseClicked = () => {
+    setOpenVideoDialog(false);
+  };
+
+  function handleVideoDescriptionChanged(event) {
+    videoDescription = event.target.value
+  }
+
+  function handleVideoFileChanged(event) {
+    videoFile = event.target.files[0]
+  }
+
+  function handleAddVideoConfirmed() {
+    // close dialog
+    setOpenVideoDialog(false);
+
+    let targetChapter = chapters[0]
+    chapters.forEach(function (chapter) {
+      if (chapter.id == targetChapterId) {
+        targetChapter = chapter
+      }
+    })
+
+    let maxOrder = 0
+    let oldVideos = targetChapter.videos
+    oldVideos.forEach(function (video) {
+      if (maxOrder < video.order) {
+        maxOrder = video.order
+      }
+    })
+    let newOrder = maxOrder + 1
+
+    let videoName = "" + newOrder + "." + videoFile.name.substring(videoFile.name.lastIndexOf('.') + 1)
+    let videoPath = `course/${course.id}/chapter/${targetChapter.order}/${videoName}`
+
+    let newVideo = {
+      chapterId: targetChapter.id,
+      videoUrl: videoPath,
+      description: videoDescription,
+      order: newOrder
+    }
+    console.log(newVideo)
+
+    function createVideo() {
+      myModel.createVideo(
+        localStorage.getItem('accessToken'),
+        newVideo,
+        function ok(response) {
+
+          let newVideo = response.data
+
+          // upload to storage
+          let accessToken = localStorage.getItem('accessToken')
+          myModel.getStorageToken(
+            accessToken,
             function ok(response) {
 
-                let newChapter = response.data
-                newChapter.videos = []
-                store.dispatch({
-                    type: 'set_chapters',
-                    payload: {
-                        data: [...oldChapters, newChapter]
-                    }
-                });
-            },
-            function fail(error) {
-                console.log('fail to add chapter')
-            }
-        )
-    }
+              let token = response.data.readToken
+              console.log('storage token: ', token)
+              authWithFirebase(token,
+                function ok() {
 
-    const [openVideoDialog, setOpenVideoDialog] = useState(false);
+                  console.log('uploading video...: ')
+                  uploadVideo(
+                    videoPath,
+                    videoFile,
+                    function ok(downloadUrl) {
 
-    function handleAddVideoClicked(chapterId, event) {
-
-        targetChapterId = chapterId
-        setOpenVideoDialog(true);
-    };
-    const handleAddVideoCloseClicked = () => {
-        setOpenVideoDialog(false);
-    };
-
-    function handleVideoDescriptionChanged(event) {
-        videoDescription = event.target.value
-    }
-
-    function handleVideoFileChanged(event) {
-        videoFile = event.target.files[0]
-    }
-
-    function handleAddVideoConfirmed() {
-        // close dialog
-        setOpenVideoDialog(false);
-
-        let targetChapter = chapters[0]
-        chapters.forEach(function(chapter) {
-            if (chapter.id == targetChapterId) {
-                targetChapter = chapter
-            }
-        })
-
-        let maxOrder = 0
-        let oldVideos = targetChapter.videos
-        oldVideos.forEach(function(video) {
-            if (maxOrder < video.order) {
-                maxOrder = video.order
-            }
-        })
-        let newOrder = maxOrder + 1
-
-        let videoName = "" + newOrder + "." + videoFile.name.substring(videoFile.name.lastIndexOf('.') + 1)
-        let videoPath = `course/${course.id}/chapter/${targetChapter.order}/${videoName}`
-
-        let newVideo = {
-            chapterId: targetChapter.id,
-            videoUrl: videoPath,
-            description: videoDescription,
-            order: newOrder
-        }
-        console.log(newVideo)
-
-        function createVideo() {
-            myModel.createVideo(
-                localStorage.getItem('accessToken'),
-                newVideo,
-                function ok(response) {
-
-                    let newVideo = response.data
-
-                    // upload to storage
-                    let accessToken = localStorage.getItem('accessToken')
-                    myModel.getStorageToken(
-                        accessToken,
-                        function ok(response) {
-
-                            let token = response.data.readToken
-                            console.log('storage token: ', token)
-                            authWithFirebase(token,
-                                function ok() {
-
-                                    console.log('uploading video...: ')
-                                    uploadVideo(
-                                        videoPath,
-                                        videoFile,
-                                        function ok(downloadUrl) {
-
-                                            // add to store, re-render
-                                            targetChapter.videos = [...targetChapter.videos, newVideo]
-                                            store.dispatch({
-                                                type: 'set_chapters',
-                                                payload: {
-                                                    data: [...chapters]
-                                                }
-                                            });
-
-                                        },
-                                        function fail() {
-                                            console.log('fail to upload video')
-
-                                        }
-                                    )
-                                },
-                                function fail(error) {
-
-                                    console.log('fail to authen with firebase')
-                                })
-                        },
-                        function fail(error) {
-                            console.log('fail to get storage token')
-                        }
-                    )
-
-
-
-
-                },
-                function fail(error) {
-                    console.log('fail to add video')
-                }
-            )
-        }
-
-        function authWithFirebase(token, okCallback, failCallback) {
-            firebase.auth().signInWithCustomToken(token)
-                .then((user) => {
-                    okCallback()
-                })
-                .catch((error) => {
-                    console.log(error)
-                    failCallback(error)
-                })
-        }
-
-        function uploadVideo(videoPath, videoFile, okCallback, failCallback) {
-
-            var uploadTask = storage.child(
-                videoPath
-            ).put(videoFile);
-
-            uploadTask.on(firebase.storage.TaskEvent.STATE_CHANGED,
-                function(snapshot) {
-                    var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                    console.log('Upload is ' + progress + '% done');
-                    switch (snapshot.state) {
-                        case firebase.storage.TaskState.PAUSED: // or 'paused'
-                            console.log('Upload is paused');
-                            break;
-                        case firebase.storage.TaskState.RUNNING: // or 'running'
-                            console.log('Upload is running');
-                            break;
-                    }
-                },
-                function(error) {
-
-                    window.alert(error)
-                    switch (error.code) {
-                        case 'storage/unauthorized':
-                            // User doesn't have permission to access the object
-                            break;
-
-                        case 'storage/canceled':
-                            // User canceled the upload
-                            break;
-
-                        case 'storage/unknown':
-                            // Unknown error occurred, inspect error.serverResponse
-                            break;
-                    }
-                },
-                function() {
-                    console.log('done uploading')
-                    // uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
-                    //     console.log('File available at: ' + downloadURL);
-                    //     okCallback(downloadURL)
-                    // });
-                    okCallback(videoPath)
-                });
-
-        }
-
-
-        createVideo()
-
-    }
-
-    const [openFeedbackDialog, setOpenFeedbackDialog] = useState(false)
-    const [feedbackAccName, setFeedbackAccName] = useState('thang2')
-    let feedbackComment = ''
-    let feedbackRate = 1
-
-    function handleAddFeedbackClicked(event) {
-        setOpenFeedbackDialog(true);
-
-        let account = store.getState().account
-        setFeedbackAccName(account.name)
-
-
-    }
-
-    function handleFeedbackCloseClicked(event) {
-        setOpenFeedbackDialog(false);
-    }
-
-    function handleCommentChanged(event) {
-        feedbackComment = event.target.value
-    }
-
-    function handleRateChanged(event) {
-        feedbackRate = event.target.value
-    }
-
-    function handleAddFeedbackConfirmed(event) {
-
-        let feedback = {
-            comment: feedbackComment,
-            rate: feedbackRate
-        }
-        console.log('feedback: ', feedback)
-
-        function createFeedback() {
-            myRequest({
-                    method: 'post',
-                    url: `${myConfig.apiServerAddress}/api/feedbacks`,
-                    data: {
-                        accountId: store.getState().account.id,
-                        courseId: course.id,
-                        type: 0,
-                        content: feedbackComment,
-                        ratePoint: feedbackRate,
-                    },
-                    headers: {
-                        'x-access-token': localStorage.getItem('accessToken')
-                    }
-
-                },
-                function ok(response) {
-                    let newFeedback = response.data
-                    newFeedback.account = store.getState().account
-                    store.dispatch({
-                        type: 'set_feedbacks',
+                      // add to store, re-render
+                      targetChapter.videos = [...targetChapter.videos, newVideo]
+                      store.dispatch({
+                        type: 'set_chapters',
                         payload: {
-                            data: [...feedbacks, response.data]
+                          data: [...chapters]
                         }
-                    });
-                    // close dialog
-                    setOpenFeedbackDialog(false);
+                      });
+
+                    },
+                    function fail() {
+                      console.log('fail to upload video')
+
+                    }
+                  )
                 },
                 function fail(error) {
-                    alert('fail to add feedback, re-login and try again')
-                    // close dialog
-                    setOpenFeedbackDialog(false);
-                }
-            )
-        }
-        createFeedback()
-    }
 
-    function handlePageChanged(event, pageNumber) {
-        console.log('coursedetail: page: ', pageNumber)
-
-        setNumFeedbackSkip(numFeedback * (pageNumber - 1))
-    }
-
-    function handleWishlistClicked(event) {
-
-        // check if already in watchlist
-        let accountId = store.getState().account.id
-        myRequest({
-                method: 'get',
-                url: `${myConfig.apiServerAddress}/api/watchLists`,
-                params: {
-                    filter: `{"where": {"and": [{"accountId": "${accountId}"}, {"courseId": "${course.id}"} ]}}`
-                }
-            },
-            function ok(response) {
-
-                let list = response.data
-                if (list.length == 0) {
-
-                    console.log('adding to wishlist...')
-                    myRequest({
-                            method: 'post',
-                            url: `${myConfig.apiServerAddress}/api/watchLists`,
-                            data: {
-                                accountId: accountId,
-                                courseId: course.id
-                            },
-                            headers: {
-                                'x-access-token': localStorage.getItem('accessToken')
-                            }
-                        },
-                        function ok(response) {
-
-                            alert(`${course.name} added to wishlist`)
-
-                        },
-                        function fail(error) {
-                            console.log('coursedetail: fail get watchlist')
-                        }
-                    )
-                } else {
-                    alert('already added to wishlist')
-                }
-
+                  console.log('fail to authen with firebase')
+                })
             },
             function fail(error) {
-                console.log('coursedetail: fail get watchlist')
+              console.log('fail to get storage token')
             }
-        )
+          )
 
 
-    }
 
-    function handleBuyClicked(event) {
 
-        console.log('buying...')
-        
-        if(!localStorage.getItem('accessToken')){
-          alert('create an account to buy this course')
-          return;
+        },
+        function fail(error) {
+          console.log('fail to add video')
         }
+      )
+    }
 
-        myRequest({
-                method: 'post',
-                url: `${myConfig.apiServerAddress}/api/accountCourses`,
-                data: {
-                    accountId: account.id,
-                    courseId: course.id
-                },
-                headers: {
-                    'x-access-token': localStorage.getItem('accessToken')
-                }
-            },
-            function ok(response) {
 
-                alert(`${course.name} was bought successfully!`)
+    function authWithFirebase(token, okCallback, failCallback) {
+      firebase.auth().signInWithCustomToken(token)
+        .then((user) => {
+          okCallback()
+        })
+        .catch((error) => {
+          console.log(error)
+          failCallback(error)
+        })
+    }
 
-            },
-            function fail(error) {
-                console.log('coursedetail: fail to buy')
-            }
-        )
+    function uploadVideo(videoPath, videoFile, okCallback, failCallback) {
+
+      var uploadTask = storage.child(
+        videoPath
+      ).put(videoFile);
+
+      uploadTask.on(firebase.storage.TaskEvent.STATE_CHANGED,
+        function (snapshot) {
+          var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log('Upload is ' + progress + '% done');
+          switch (snapshot.state) {
+            case firebase.storage.TaskState.PAUSED: // or 'paused'
+              console.log('Upload is paused');
+              break;
+            case firebase.storage.TaskState.RUNNING: // or 'running'
+              console.log('Upload is running');
+              break;
+          }
+        },
+        function (error) {
+
+          window.alert(error)
+          switch (error.code) {
+            case 'storage/unauthorized':
+              // User doesn't have permission to access the object
+              break;
+
+            case 'storage/canceled':
+              // User canceled the upload
+              break;
+
+            case 'storage/unknown':
+              // Unknown error occurred, inspect error.serverResponse
+              break;
+          }
+        },
+        function () {
+          console.log('done uploading')
+          // uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+          //     console.log('File available at: ' + downloadURL);
+          //     okCallback(downloadURL)
+          // });
+          okCallback(videoPath)
+        });
 
 
     }
 
 
-    // get data
-    useEffect(() => {
+    createVideo()
 
-        myRequest({
-                method: 'get',
-                url: `${myConfig.apiServerAddress}/api/custom/Courses/ById/${id}`,
-                params: {}
-            },
-            function ok(response) {
-                store.dispatch({
-                    type: 'set_detailedCourse',
-                    payload: {
-                        data: response.data
-                    }
-                });
+  }
 
-            },
-        )
+  const [openFeedbackDialog, setOpenFeedbackDialog] = useState(false)
+  const [feedbackAccName, setFeedbackAccName] = useState('thang2')
+  let feedbackComment = ''
+  let feedbackRate = 1
 
-        myRequest({
-                method: 'get',
-                url: `${myConfig.apiServerAddress}/api/feedbacks`,
-                params: {
-                    filter: `{"where": {"courseId": "${id}"}, "include": "account"}`
-                }
-            },
-            function ok(response) {
-                store.dispatch({
-                    type: 'set_feedbacks',
-                    payload: {
-                        data: response.data
-                    }
-                });
+  function handleAddFeedbackClicked(event) {
+    setOpenFeedbackDialog(true);
 
-            },
-        )
-
-        myRequest({
-                method: 'get',
-                url: `${myConfig.apiServerAddress}/api/custom/Courses/${id}/related`,
-                params: {
-                    numLimit: 10
-                }
-            },
-            function ok(response) {
-                store.dispatch({
-                    type: 'set_relatedCourses',
-                    payload: {
-                        data: response.data
-                    }
-                });
-
-            },
-        )
-
-        myRequest({
-                method: 'get',
-                url: `${myConfig.apiServerAddress}/api/chapters`,
-                params: {
-                    filter: `{"where": { "courseId": "${id}"}, "include": "videos"}`
-                }
-            },
-            function ok(response) {
-                store.dispatch({
-                    type: 'set_chapters',
-                    payload: {
-                        data: response.data
-                    }
-                });
-
-            },
-        )
-
-    }, [id])
-
-
-    // prepare
-    const authorize_value = {
-        GUEST: 1,
-        TEACHER_OF_COURSE: 5,
-        STUDENT_OF_COURSE: 10
-    }
-    const [authorize, setAuthorize] = useState(authorize_value.GUEST)
-    const [numFeedbackSkip, setNumFeedbackSkip] = useState(0)
-    const numFeedback = 4
     let account = store.getState().account
-    let course = store.getState().detailedCourse
-    let feedbacks = store.getState().feedbacks
-    let relatedCourses = store.getState().relatedCourses
-    let chapters = store.getState().chapters
+    setFeedbackAccName(account.name)
 
-    let ratePoint = 0
-    let timesRate = 0
-    let price = 0
-    let priceAfterSaleOff = 0
-    let category = 'loading...'
-    let imageUrl = myConfig.defaultImageUrl
-    let courseId = ''
-    let updatedAt = '0/0/0'
-    if (course) {
 
-        category = `${course.category.topic}/${course.category.name}`
+  }
 
-        if (course.feedback) {
-            ratePoint = course.feedback.avgRatePoint
-            timesRate = course.feedback.timesRate
+  function handleFeedbackCloseClicked(event) {
+    setOpenFeedbackDialog(false);
+  }
 
+  function handleCommentChanged(event) {
+    feedbackComment = event.target.value
+  }
+
+  function handleRateChanged(event) {
+    feedbackRate = event.target.value
+  }
+
+  function handleAddFeedbackConfirmed(event) {
+
+    let feedback = {
+      comment: feedbackComment,
+      rate: feedbackRate
+    }
+    console.log('feedback: ', feedback)
+
+    function createFeedback() {
+      myRequest({
+        method: 'post',
+        url: `${myConfig.apiServerAddress}/api/feedbacks`,
+        data: {
+          accountId: store.getState().account.id,
+          courseId: course.id,
+          type: 0,
+          content: feedbackComment,
+          ratePoint: feedbackRate,
+        },
+        headers: {
+          'x-access-token': localStorage.getItem('accessToken')
         }
 
-        price = course.price
-        priceAfterSaleOff = price * (1 - course.saleOffPercent)
-        // if (course.saleOffPercent && course.saleOffPercent != 0) {
-        //     priceAfterSaleOff = course.saleOffPercent * price
-        // }
-
-        imageUrl = course.imageUrl
-        courseId = course.id
-        updatedAt = course.updatedAt
-
-
-
-
-        if (account) {
-            if (account.id == course.teacherId && authorize != authorize_value.TEACHER_OF_COURSE) {
-                setAuthorize(authorize_value.TEACHER_OF_COURSE)
-            } else {
-                myRequest({
-                        method: 'get',
-                        url: `${myConfig.apiServerAddress}/api/accountCourses`,
-                        params: {
-                            filter: `{"where": {"and": [{ "courseId": "${course.id}"}, {"accountId": "${account.id}"}]} }`
-                        }
-                    },
-                    function ok(response) {
-
-                        let list = response.data
-                        if (list.length > 0 && authorize != authorize_value.STUDENT_OF_COURSE) {
-                            setAuthorize(authorize_value.STUDENT_OF_COURSE)
-                        }
-
-                    },
-                )
+      },
+        function ok(response) {
+          let newFeedback = response.data
+          newFeedback.account = store.getState().account
+          store.dispatch({
+            type: 'set_feedbacks',
+            payload: {
+              data: [...feedbacks, response.data]
             }
-
+          });
+          // close dialog
+          setOpenFeedbackDialog(false);
+        },
+        function fail(error) {
+          alert('fail to add feedback, re-login and try again')
+          // close dialog
+          setOpenFeedbackDialog(false);
         }
+      )
+    }
+    createFeedback()
+  }
+
+  function handlePageChanged(event, pageNumber) {
+    console.log('coursedetail: page: ', pageNumber)
+
+    setNumFeedbackSkip(numFeedback * (pageNumber - 1))
+  }
+
+  function handleWishlistClicked(event) {
+
+    // check if already in watchlist
+    let accountId = store.getState().account.id
+    myRequest({
+      method: 'get',
+      url: `${myConfig.apiServerAddress}/api/watchLists`,
+      params: {
+        filter: `{"where": {"and": [{"accountId": "${accountId}"}, {"courseId": "${course.id}"} ]}}`
+      }
+    },
+      function ok(response) {
+
+        let list = response.data
+        if (list.length == 0) {
+
+          console.log('adding to wishlist...')
+          myRequest({
+            method: 'post',
+            url: `${myConfig.apiServerAddress}/api/watchLists`,
+            data: {
+              accountId: accountId,
+              courseId: course.id
+            },
+            headers: {
+              'x-access-token': localStorage.getItem('accessToken')
+            }
+          },
+            function ok(response) {
+
+              alert(`${course.name} added to wishlist`)
+
+            },
+            function fail(error) {
+              console.log('coursedetail: fail get watchlist')
+            }
+          )
+        } else {
+          alert('already added to wishlist')
+        }
+
+      },
+      function fail(error) {
+        console.log('coursedetail: fail get watchlist')
+      }
+    )
+
+
+  }
+
+  function handleBuyClicked(event) {
+
+    console.log('buying...')
+
+    if (!localStorage.getItem('accessToken')) {
+      alert('create an account to buy this course')
+      return;
+    }
+
+    myRequest({
+      method: 'post',
+      url: `${myConfig.apiServerAddress}/api/accountCourses`,
+      data: {
+        accountId: account.id,
+        courseId: course.id
+      },
+      headers: {
+        'x-access-token': localStorage.getItem('accessToken')
+      }
+    },
+      function ok(response) {
+
+        alert(`${course.name} was bought successfully!`)
+
+      },
+      function fail(error) {
+        console.log('coursedetail: fail to buy')
+      }
+    )
+
+
+  }
+
+
+  // get data
+  useEffect(() => {
+
+    myRequest({
+      method: 'get',
+      url: `${myConfig.apiServerAddress}/api/custom/Courses/ById/${id}`,
+      params: {}
+    },
+      function ok(response) {
+        store.dispatch({
+          type: 'set_detailedCourse',
+          payload: {
+            data: response.data
+          }
+        });
+
+      },
+    )
+
+    myRequest({
+      method: 'get',
+      url: `${myConfig.apiServerAddress}/api/feedbacks`,
+      params: {
+        filter: `{"where": {"courseId": "${id}"}, "include": "account"}`
+      }
+    },
+      function ok(response) {
+        store.dispatch({
+          type: 'set_feedbacks',
+          payload: {
+            data: response.data
+          }
+        });
+
+      },
+    )
+
+    myRequest({
+      method: 'get',
+      url: `${myConfig.apiServerAddress}/api/custom/Courses/${id}/related`,
+      params: {
+        numLimit: 10
+      }
+    },
+      function ok(response) {
+        store.dispatch({
+          type: 'set_relatedCourses',
+          payload: {
+            data: response.data
+          }
+        });
+
+      },
+    )
+
+    myRequest({
+      method: 'get',
+      url: `${myConfig.apiServerAddress}/api/chapters`,
+      params: {
+        filter: `{"where": { "courseId": "${id}"}, "include": "videos"}`
+      }
+    },
+      function ok(response) {
+        store.dispatch({
+          type: 'set_chapters',
+          payload: {
+            data: response.data
+          }
+        });
+
+      },
+    )
+
+  }, [id])
+
+
+  // prepare
+  const authorize_value = {
+    GUEST: 1,
+    TEACHER_OF_COURSE: 5,
+    STUDENT_OF_COURSE: 10
+  }
+  const [authorize, setAuthorize] = useState(authorize_value.GUEST)
+  const [numFeedbackSkip, setNumFeedbackSkip] = useState(0)
+  const numFeedback = 4
+  let account = store.getState().account
+  let course = store.getState().detailedCourse
+  let feedbacks = store.getState().feedbacks
+  let relatedCourses = store.getState().relatedCourses
+  let chapters = store.getState().chapters
+
+
+
+  let ratePoint = 0
+  let timesRate = 0
+  let price = 0
+  let priceAfterSaleOff = 0
+  let category = 'loading...'
+  let imageUrl = myConfig.defaultImageUrl
+  let courseId = ''
+  let updatedAt = '0/0/0'
+  if (course) {
+
+    category = `${course.category.topic}/${course.category.name}`
+
+    if (course.feedback) {
+      ratePoint = course.feedback.avgRatePoint
+      timesRate = course.feedback.timesRate
+
     }
 
 
+    price = course.price
+    priceAfterSaleOff = price * (1 - course.saleOffPercent)
+    // if (course.saleOffPercent && course.saleOffPercent != 0) {
+    //     priceAfterSaleOff = course.saleOffPercent * price
+    // }
 
 
-    // render
-    return (
-        <Grid container>
+    imageUrl = course.imageUrl
+    courseId = course.id
+    updatedAt = course.updatedAt
+
+
+
+
+
+    if (account) {
+      if (account.id == course.teacherId && authorize != authorize_value.TEACHER_OF_COURSE) {
+        setAuthorize(authorize_value.TEACHER_OF_COURSE)
+      } else {
+        myRequest({
+          method: 'get',
+          url: `${myConfig.apiServerAddress}/api/accountCourses`,
+          params: {
+            filter: `{"where": {"and": [{ "courseId": "${course.id}"}, {"accountId": "${account.id}"}]} }`
+          }
+        },
+          function ok(response) {
+
+            let list = response.data
+            if (list.length > 0 && authorize != authorize_value.STUDENT_OF_COURSE) {
+              setAuthorize(authorize_value.STUDENT_OF_COURSE)
+            }
+
+          },
+        )
+      }
+
+    }
+  }
+
+
+
+
+  // render
+  return (
+    <Grid container>
+
       <Grid container style={{ backgroundColor: '#1e1e1c' }}>
         <Grid container style={{ marginTop: 40, marginBottom: 40 }}>
           <Grid xs={1} />
@@ -665,7 +673,7 @@ function CourseDetail(props) {
                       <Button variant="outlined" color="inherit" endIcon={<FavoriteBorderIcon />}
                         style={{ marginRight: 10 }}
                         onClick={handleWishlistClicked}
-                        >
+                      >
                         Wishlist
                         </Button>
                     )
@@ -730,6 +738,7 @@ function CourseDetail(props) {
                           })
                         }
                       </List>
+
                       {
                         authorize == authorize_value.TEACHER_OF_COURSE ?
                           (
@@ -738,6 +747,7 @@ function CourseDetail(props) {
                           )
                           : ''
                       }
+
 
                     </ListItem>
                   )
@@ -900,6 +910,7 @@ function CourseDetail(props) {
 
         </Grid>
 
+
         {
           authorize == authorize_value.GUEST ?
             (
@@ -933,17 +944,18 @@ function CourseDetail(props) {
                         )
                       }
 
+
                     </Grid>
 
-                    <Button variant="contained" fullWidth color="secondary" 
-                    style={{ marginTop: 20, height: 50, fontWeight: 'bold' }}
+                    <Button variant="contained" fullWidth color="secondary"
+                      style={{ marginTop: 20, height: 50, fontWeight: 'bold' }}
 
                     >
                       Add to cart
                 </Button>
-                    <Button variant="outlined" fullWidth color="primary" 
-                    style={{ marginTop: 5, height: 50, fontWeight: 'bold' }}
-                       onClick={handleBuyClicked}
+                    <Button variant="outlined" fullWidth color="primary"
+                      style={{ marginTop: 5, height: 50, fontWeight: 'bold' }}
+                      onClick={handleBuyClicked}
                     >
                       Buy now
                 </Button>
@@ -1066,7 +1078,7 @@ function CourseDetail(props) {
 
 
     </Grid >
-    );
+  );
 }
 
-export default CourseDetail;
+export default CourseDetail

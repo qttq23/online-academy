@@ -21,8 +21,12 @@ function CourseTile(props) {
             <ListItemText primary={<Typography variant="subtitle" style={{ fontSize: 14 }} >{props.lecturer}</Typography>} />
             <ListItemText primary={
               <Container style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }} disableGutters>
-                <Typography variant="subtitle1" style={{ color: '#ffd700', fontWeight: 'bold', textAlign: 'center' }}>{props.rating}</Typography>
-                <Rating name="read-only" value={props.rating} readOnly size="small" />
+                <Typography variant="subtitle1" style={{ color: '#e91e63', fontWeight: 'bold', textAlign: 'center' }}>{props.rating}</Typography>
+                <Rating name="read-only" value={props.rating} readOnly size="small" 
+                style={{
+                  color: "#e91e63",
+                  padding: "0 5px"
+                }}/>
               </Container>} />
           </List>
         </Grid>
