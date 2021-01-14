@@ -1,18 +1,18 @@
-import React, { useState } from "react";
-import { fade, makeStyles } from "@material-ui/core/styles";
-import { AppBar, Grid, Hidden, InputAdornment, TextField, Toolbar, Typography } from "@material-ui/core";
-import Button from "@material-ui/core/Button";
-import { NavLink } from "react-router-dom";
-import NestedMenu from "./NestedMenu";
-import IconButton from "@material-ui/core/IconButton";
-import InputBase from '@material-ui/core/InputBase';
-import SearchIcon from "@material-ui/icons/Search";
+import React, { useState } from "react"
+import { fade, makeStyles } from "@material-ui/core/styles"
+import { AppBar, Grid, Hidden, InputAdornment, TextField, Toolbar, Typography } from "@material-ui/core"
+import Button from "@material-ui/core/Button"
+import { NavLink } from "react-router-dom"
+import NestedMenu from "./NestedMenu"
+import IconButton from "@material-ui/core/IconButton"
+import InputBase from '@material-ui/core/InputBase'
+import SearchIcon from "@material-ui/icons/Search"
 
 import store from '../../redux/store'
 import myModel from '../../helpers/myModel'
 import {
   Link,
-} from 'react-router-dom';
+} from 'react-router-dom'
 
 const useStyles = makeStyles((theme) => ({
   style: {
@@ -59,7 +59,7 @@ const useStyles = makeStyles((theme) => ({
   },
   search: {
     position: 'relative',
-    border: "1px solid #989586",
+    border: "2px solid #e91e63",
     borderRadius: "25px",
     backgroundColor: "#FFF",
     color: "black",
@@ -90,10 +90,10 @@ const useStyles = makeStyles((theme) => ({
     transition: theme.transitions.create('width'),
     width: '100%',
   },
-}));
+}))
 
 const Header = () => {
-  const classes = useStyles();
+  const classes = useStyles()
 
   // render
   let account = store.getState().account
@@ -116,10 +116,13 @@ const Header = () => {
             <Hidden only={["sm", "xs"]}>
               <div className={classes.search}>
                 <div className={classes.searchIcon}>
-                  <SearchIcon style={{ color: "#989586" }} />
+                  <SearchIcon style={{ color: "#e91e63" }} />
                 </div>
                 <InputBase
                   placeholder="Search…"
+                  style={{
+                    width: "100%"
+                  }}
                   classes={{
                     root: classes.inputRoot,
                     input: classes.inputInput,
@@ -169,7 +172,7 @@ const Header = () => {
         </Toolbar>
       </AppBar>
     </Grid>
-  );
-};
+  )
+}
 
-export default Header;
+export default Header

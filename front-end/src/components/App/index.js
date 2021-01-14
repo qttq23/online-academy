@@ -10,7 +10,7 @@ import CssBaseline from "@material-ui/core/CssBaseline"
 import AdminLayout from "../../layouts/AdminLayout"
 import Users from "../Admin/Users"
 import Categories from "../Categories"
-// import CourseDetail from "../CourseDetail"
+// import CourseDetail from "../CourseDetail/"
 import CourseDetail from "../CourseDetail/CourseDetail"
 import Profile from "../Profile"
 import UpdateProfile from "../UpdateProfile"
@@ -81,7 +81,6 @@ const App = ({ location }) => {
   return (
     <div>
       <Router>
-        <CssBaseline />
         <Grid container direction="column" className={classes.root}>
           <Grid item xs>
             <Header />
@@ -133,7 +132,7 @@ const App = ({ location }) => {
           </Grid>
           {window.location.pathname.includes("/admin") !== -1 ? (
             <Grid item xs>
-              <Footer item classname={classes.footer} />
+              <Footer item className={classes.footer} />
             </Grid>
           ) : null}
         </Grid>

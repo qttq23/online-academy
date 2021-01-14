@@ -44,54 +44,54 @@ const Categories = (props) => {
         <Grid item container spacing={2} direction="row" style={{ marginTop: 5, marginLeft: 20, justifyContent: "center" }}>
           <Grid item xs={5} sm={4} md={2}>
             <Card variant="outlined" >
-              <CardHeader title="Web Development" style={{ textAlign: 'center', fontWeight: '700', color: '#0f7c90' }} disableTypography />
+              <CardHeader title="Web Development" style={{ textAlign: 'center', fontWeight: '700', color: '#e91e63' }} disableTypography />
             </Card >
           </Grid>
           <Grid item xs={5} sm={4} md={2}>
             <Card variant="outlined" >
-              <CardHeader title="Web Development" style={{ textAlign: 'center', fontWeight: '700', color: '#0f7c90' }} disableTypography />
+              <CardHeader title="Web Development" style={{ textAlign: 'center', fontWeight: '700', color: '#e91e63' }} disableTypography />
             </Card >
           </Grid>
           <Grid item xs={5} sm={4} md={2}>
             <Card variant="outlined" >
-              <CardHeader title="Web Development" style={{ textAlign: 'center', fontWeight: '700', color: '#0f7c90' }} disableTypography />
+              <CardHeader title="Web Development" style={{ textAlign: 'center', fontWeight: '700', color: '#e91e63' }} disableTypography />
             </Card >
           </Grid>
           <Grid item xs={5} sm={4} md={2}>
             <Card variant="outlined" >
-              <CardHeader title="Web Development" style={{ textAlign: 'center', fontWeight: '700', color: '#0f7c90' }} disableTypography />
+              <CardHeader title="Web Development" style={{ textAlign: 'center', fontWeight: '700', color: '#e91e63' }} disableTypography />
             </Card >
           </Grid>
           <Grid item xs={5} sm={4} md={2}>
             <Card variant="outlined" >
-              <CardHeader title="Web Development" style={{ textAlign: 'center', fontWeight: '700', color: '#0f7c90' }} disableTypography />
+              <CardHeader title="Web Development" style={{ textAlign: 'center', fontWeight: '700', color: '#e91e63' }} disableTypography />
             </Card >
           </Grid>
         </Grid>
         <Grid item container spacing={2} direction="row" style={{ marginTop: 5, marginLeft: 20, justifyContent: "center" }}>
           <Grid item xs={5} sm={4} md={2}>
             <Card variant="outlined" >
-              <CardHeader title="Web Development" style={{ textAlign: 'center', fontWeight: '700', color: '#0f7c90' }} disableTypography />
+              <CardHeader title="Web Development" style={{ textAlign: 'center', fontWeight: '700', color: '#e91e63' }} disableTypography />
             </Card >
           </Grid>
           <Grid item xs={5} sm={4} md={2}>
             <Card variant="outlined" >
-              <CardHeader title="Web Development" style={{ textAlign: 'center', fontWeight: '700', color: '#0f7c90' }} disableTypography />
+              <CardHeader title="Web Development" style={{ textAlign: 'center', fontWeight: '700', color: '#e91e63' }} disableTypography />
             </Card >
           </Grid>
           <Grid item xs={5} sm={4} md={2}>
             <Card variant="outlined" >
-              <CardHeader title="Web Development" style={{ textAlign: 'center', fontWeight: '700', color: '#0f7c90' }} disableTypography />
+              <CardHeader title="Web Development" style={{ textAlign: 'center', fontWeight: '700', color: '#e91e63' }} disableTypography />
             </Card >
           </Grid>
           <Grid item xs={5} sm={4} md={2}>
             <Card variant="outlined" >
-              <CardHeader title="Web Development" style={{ textAlign: 'center', fontWeight: '700', color: '#0f7c90' }} disableTypography />
+              <CardHeader title="Web Development" style={{ textAlign: 'center', fontWeight: '700', color: '#e91e63' }} disableTypography />
             </Card >
           </Grid>
           <Grid item xs={5} sm={4} md={2}>
             <Card variant="outlined" >
-              <CardHeader title="Web Development" style={{ textAlign: 'center', fontWeight: '700', color: '#0f7c90' }} disableTypography />
+              <CardHeader title="Web Development" style={{ textAlign: 'center', fontWeight: '700', color: '#e91e63' }} disableTypography />
             </Card >
           </Grid>
         </Grid>
@@ -122,7 +122,9 @@ const Categories = (props) => {
                           justifyContent: 'space-around',
                           alignItems: 'center'
                         }}>
-                          <Rating name="read-only" value={5} readOnly size="small" />
+                          <Rating name="read-only" value={5} readOnly size="small" style={{
+                            color: "#e91e63"
+                          }}/>
                         </Container>
                       } control={<Radio />} value={5} />
                       <FormControlLabel label={
@@ -132,7 +134,10 @@ const Categories = (props) => {
                           justifyContent: 'space-around',
                           alignItems: 'center'
                         }}>
-                          <Rating name="read-only" value={4} readOnly size="small" />
+                          <Rating name="read-only" value={4} readOnly size="small"
+                          style={{
+                            color: "#e91e63"
+                          }}/>
                         </Container>
                       } control={<Radio />} value={4} />
                       <FormControlLabel label={
@@ -142,7 +147,10 @@ const Categories = (props) => {
                           justifyContent: 'space-around',
                           alignItems: 'center'
                         }}>
-                          <Rating name="read-only" value={3} readOnly size="small" />
+                          <Rating name="read-only" value={3} readOnly size="small" 
+                          style={{
+                            color: "#e91e63"
+                          }}/>
                         </Container>
                       } control={<Radio />} value={3} />
                       <FormControlLabel label={
@@ -152,7 +160,10 @@ const Categories = (props) => {
                           justifyContent: 'space-around',
                           alignItems: 'center'
                         }}>
-                          <Rating name="read-only" value={2} readOnly size="small" />
+                          <Rating name="read-only" value={2} readOnly size="small" 
+                          style={{
+                            color: "#e91e63"
+                          }}/>
                         </Container>
                       } control={<Radio />} value={2} />
                       <FormControlLabel label={
@@ -162,7 +173,10 @@ const Categories = (props) => {
                           justifyContent: 'space-around',
                           alignItems: 'center'
                         }}>
-                          <Rating name="read-only" value={1} readOnly size="small" />
+                          <Rating name="read-only" value={1} readOnly size="small" 
+                          style={{
+                            color: "#e91e63"
+                          }}/>
                         </Container>
                       } control={<Radio />} value={1} />
                     </RadioGroup>
@@ -183,7 +197,6 @@ const Categories = (props) => {
                           checked={state.paid}
                           onChange={handleChange}
                           name="paid"
-                          color="primary"
                         />
                       }
                       label="Paid"
@@ -194,7 +207,6 @@ const Categories = (props) => {
                           checked={state.free}
                           onChange={handleChange}
                           name="free"
-                          color="primary"
                         />
                       }
                       label="Free"

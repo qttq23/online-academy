@@ -24,7 +24,7 @@ import store from '../../redux/store'
 
 const useStyles = makeStyles((theme) => ({
   paper: {
-    marginTop: theme.spacing(10),
+    marginTop: 120,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -94,7 +94,7 @@ export default function SignUp() {
 
 
   // render
-  if(isActivate){
+  if (isActivate) {
 
     return <Redirect to={{
       pathname: "/activate",
@@ -106,13 +106,9 @@ export default function SignUp() {
   // regular view
   return (
     <Container component="main" maxWidth="xs">
-      <CssBaseline />
       <div className={classes.paper}>
-        <Avatar className={classes.avatar}>
-          <LockOutlinedIcon />
-        </Avatar>
         <Typography component="h1" variant="h5">
-          Sign up
+          Sign Up
           </Typography>
         <form className={classes.form} noValidate>
           <Grid container spacing={2}>
