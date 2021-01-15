@@ -74,11 +74,14 @@ export default function CourseCard({ course, style }) {
     if (course.feedback) {
       ratePoint = course.feedback.avgRatePoint
       timesRate = course.feedback.timesRate
+
+      ratePoint = Math.round(ratePoint * 100) / 100
     }
 
     price = course.price
     priceAfterSaleOff = price * (1 - course.saleOffPercent)
-
+    price = Math.round(price * 100) / 100
+    priceAfterSaleOff = Math.round(priceAfterSaleOff * 100) / 100
 
 
     imageUrl = course.imageUrl

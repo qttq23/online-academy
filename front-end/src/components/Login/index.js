@@ -16,6 +16,7 @@ import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 import myModel from '../../helpers/myModel'
+import myConfig from '../../helpers/myConfig'
 import {
     Redirect,
 } from 'react-router-dom';
@@ -75,8 +76,25 @@ export default function SignIn(props) {
         console.log('signin: email: ', email)
         console.log('signin: password: ', password)
 
-        myModel.checkCredential(
-            { email, password },
+
+        // validate
+        if (!email || !password || email == '' || password == '') {
+            setDialogMessage('Email or Password cannot be empty')
+            setDialogType('error')
+            return;
+        }
+
+        let re = new RegExp(myConfig.emailPattern)
+        let match = email.match(re)
+        console.log('login: match: ', match)
+        if (!match) {
+            setDialogMessage('Email not valid')
+            setDialogType('error')
+            return;
+        }
+
+
+        myModel.checkCredential({ email, password },
             function ok(response) {
 
                 console.log('login: ok: ', response.data)
@@ -123,8 +141,9 @@ export default function SignIn(props) {
 
     const [dialogType, setDialogType] = useState('close')
     const [dialogMessage, setDialogMessage] = useState('')
-    function handleDialogClose(){
-    	setDialogType('close')
+
+    function handleDialogClose() {
+        setDialogType('close')
     }
 
 
@@ -137,7 +156,7 @@ export default function SignIn(props) {
         let redirectUrl = '/home'
         try {
             redirectUrl = props.location.state.returnUrl
-        } catch (e) { }
+        } catch (e) {}
         return <Redirect to={redirectUrl} />
     }
 

@@ -38,14 +38,17 @@ String.prototype.capitalize = function() {
 }
 const columns = [
     { field: 'id', headerName: 'ID', width: 150 },
-    { field: 'categoryId', headerName: 'Category ID', width: 260 },
+    // { field: 'categoryId', headerName: 'Category ID', width: 260 },
+    { field: 'categoryName', headerName: 'Category', width: 180 },
     { field: 'name', headerName: 'Name', width: 260 },
+    { field: 'teacherName', headerName: 'Teacher Name', width: 180 },
     {
         field: 'numStudent',
         headerName: 'Number of students',
         width: 200
     },
 ];
+
 
 
 export default function ManageCourses() {
@@ -69,7 +72,7 @@ export default function ManageCourses() {
                 method: 'get',
                 url: `${myConfig.apiServerAddress}/api/courses`,
                 params: {
-                    filter: `{"include": "registrations"}`
+                    filter: `{"include": ["registrations", "category", "teacher"]}`
                 }
             },
             function ok(response) {
@@ -134,16 +137,20 @@ export default function ManageCourses() {
 
         return {
             id: course.id,
-            categoryId: course.categoryId,
+            categoryName: course.category.name,
             name: course.name,
+            teacherName: course.teacher.name,
             numStudent: course.registrations? course.registrations.length : 0
         }
     })
 
     return (
    
-        <div style={{ height: 400, width: '100%' }}>
-      <DataGrid rows={courseRows} columns={columns} pageSize={5} onRowClick={handleRowClicked}/>
+        <div style={{ height: 500, width: '100%' }}>
+      <DataGrid rows={courseRows} columns={columns} 
+      pageSize={5} onRowClick={handleRowClicked}
+      showToolbar 
+      />
 
 
       <Dialog open={open} onClose={handleClose}
@@ -168,7 +175,7 @@ export default function ManageCourses() {
             label="topic"
             type="text"
             fullWidth
-            value={targetCourse ? targetCourse.categoryId : ''}
+            value={targetCourse ? targetCourse.categoryName : ''}
             onChange={()=>{}}
           />
           <TextField
@@ -185,7 +192,7 @@ export default function ManageCourses() {
             autoFocus
             margin="dense"
             id="accountDescription"
-            label="number of courses"
+            label="number of students"
             type="text"
             fullWidth
             value={targetCourse ? targetCourse.numStudent : ''}

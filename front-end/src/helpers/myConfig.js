@@ -23,5 +23,6 @@ export default {
         storageBucket: "online-academy-7bd60.appspot.com",
         messagingSenderId: "18041212094",
         appId: "1:18041212094:web:b00b73b58bc31dce69a2ef"
-    }
+    },
+    emailPattern: "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"
 }

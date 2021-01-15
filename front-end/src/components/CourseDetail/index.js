@@ -60,6 +60,8 @@ import MyDialog from '../MyDialog/index.js'
 import Chip from '@material-ui/core/Chip';
 import { NavLink } from "react-router-dom";
 
+import moment from 'moment-timezone';
+
 const useStyles = makeStyles((theme) => ({
     backdrop: {
         zIndex: theme.zIndex.drawer + 1,
@@ -391,11 +393,18 @@ function CourseDetail(props) {
                     });
                     // close dialog
                     setOpenFeedbackDialog(false);
+
+                    setDialogMessage('Your review was posted')
+                    setDialogType('success')
                 },
                 function fail(error) {
                     alert('fail to add feedback, re-login and try again')
                     // close dialog
                     setOpenFeedbackDialog(false);
+
+
+                    setDialogMessage('Fail to post review')
+                    setDialogType('error')
                 }
             )
         }
@@ -600,19 +609,23 @@ function CourseDetail(props) {
             ratePoint = course.feedback.avgRatePoint
             timesRate = course.feedback.timesRate
 
+            ratePoint = Math.round(ratePoint * 100) / 100
         }
 
 
         price = course.price
         priceAfterSaleOff = price * (1 - course.saleOffPercent)
-        // if (course.saleOffPercent && course.saleOffPercent != 0) {
-        //     priceAfterSaleOff = course.saleOffPercent * price
-        // }
+        price = Math.round(price * 100) / 100
+        priceAfterSaleOff = Math.round(priceAfterSaleOff * 100) / 100
 
 
         imageUrl = course.imageUrl
         courseId = course.id
-        updatedAt = course.updatedAt
+        // updatedAt = course.updatedAt
+        updatedAt = 
+        moment.tz(course.updatedAt, 'Africa/Abidjan')
+        .clone()
+        .tz('Asia/Ho_Chi_Minh').format('YYYY-MM-DD HH:mm:ss')
 
 
         if (account) {
@@ -960,7 +973,12 @@ function CourseDetail(props) {
                     <ListItem>
                       <CommentTile userName={item.account.name}
                         avatarUrl={item.account.imageUrl}
-                        last_updated={item.createdAt}
+                        last_updated=
+                        {
+                            moment.tz(item.createdAt, 'Africa/Abidjan')
+                            .clone()
+                            .tz('Asia/Ho_Chi_Minh').format('YYYY-MM-DD HH:mm:ss')
+                            }
                         comment={item.content}
                         rating={item.ratePoint}
                       />

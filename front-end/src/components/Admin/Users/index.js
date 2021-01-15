@@ -29,7 +29,8 @@ import store from '../../../redux/store'
 import {
   Redirect,
   useRouteMatch,
-  useParams
+  useParams,
+  Link
 } from 'react-router-dom';
 
 //WIP 
@@ -197,6 +198,10 @@ export default function DataTable(props) {
         )
     }
 
+    function handleAddTeacherClicked(){
+
+    }
+
     // render
     let accountRows = accounts.map(function(account) {
 
@@ -222,6 +227,7 @@ export default function DataTable(props) {
     })
 
     return (
+        <div>
         <div style={{ height: 400, width: '100%' }}>
       {/*<DataGrid rows={rows} columns={columns} pageSize={5} checkboxSelection />*/}
       <DataGrid rows={accountRows} columns={columns} pageSize={5} onRowClick={handleRowClicked}/>
@@ -272,11 +278,11 @@ export default function DataTable(props) {
             onChange={() => { }}
           />
 
-          <RadioGroup aria-label="gender" name="gender1" value={`${roleValue}`} onChange={handleRoleChanged}>
+          {/*<RadioGroup aria-label="gender" name="gender1" value={`${roleValue}`} onChange={handleRoleChanged}>
             <FormControlLabel value="0" control={<Radio />} label="admin" />
             <FormControlLabel value="1" control={<Radio />} label="teacher" />
             <FormControlLabel value="2" control={<Radio />} label="student" />
-          </RadioGroup>
+          </RadioGroup>*/}
 
         </DialogContent>
         <DialogActions>
@@ -293,6 +299,16 @@ export default function DataTable(props) {
       </Dialog>
 
 
+
+    </div>
+          {
+          type == 'teacher'?
+          (
+             <Link to="/signup">
+               <Button variant="contained" onClick={handleAddTeacherClicked}>Add teacher</Button>
+               </Link>
+          ): ''
+      }
     </div>
     );
 }

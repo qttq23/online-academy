@@ -42,6 +42,7 @@ export default function CourseList(props) {
   let fields = query.get('fields')
   let keyword = query.get('keyword')
   let name = query.get('name')
+  let option = query.get('option')
   console.log('courseslist: ' + fields + ', ' + keyword)
 
   useEffect(function () {
@@ -92,13 +93,13 @@ export default function CourseList(props) {
       )
     } else if (fields == 'search') {
       setLabel(`keyword: ${keyword}`)
-
       myRequest({
         method: 'get',
         url: `${myConfig.apiServerAddress}/api/custom/Courses/search`,
         params: {
           keyword: keyword,
-          fields: 'name,category.name,category.topic',
+          // fields: 'name,category.name,category.topic',
+          fields: option,
           numLimit: myNumLimit,
           numSkip: myNumSkip
         }

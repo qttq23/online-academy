@@ -28,6 +28,7 @@ import myRequest from "../../../helpers/myRequest";
 import myConfig from '../../../helpers/myConfig';
 import myModel from '../../../helpers/myModel';
 import store from '../../../redux/store'
+import MyDialog from '../../MyDialog/index.js'
 
 //WIP 
 String.prototype.capitalize = function() {
@@ -59,6 +60,12 @@ export default function ManageCategories() {
     const [categories, setCategories] = useState([])
     const [targetCategory, setTargetCategory] = useState({})
     const [topicList, setTopicList] = useState([])
+
+        const [dialogType, setDialogType] = useState('close')
+    const [dialogMessage, setDialogMessage] = useState('')
+    function handleMyDialogClose() {
+        setDialogType('close')
+    }
 
     useEffect(() => {
         document.title = "Categories"
@@ -96,6 +103,18 @@ export default function ManageCategories() {
     }
 
     function handleSave() {
+
+        // validate
+        if (!targetCategory.topic || targetCategory.topic == '') {
+            setDialogMessage("topic cannot be empty")
+            setDialogType('error')
+            return;
+        }
+        if (!targetCategory.name || targetCategory.name == '') {
+            setDialogMessage("category name cannot be empty")
+            setDialogType('error')
+            return;
+        }
 
         myRequest({
                 method: 'patch',
@@ -182,6 +201,18 @@ export default function ManageCategories() {
     }
     function handleAdd(){
 
+                // validate
+        if (!targetCategory.topic || targetCategory.topic == '') {
+            setDialogMessage("topic cannot be empty")
+            setDialogType('error')
+            return;
+        }
+        if (!targetCategory.name || targetCategory.name == '') {
+            setDialogMessage("category name cannot be empty")
+            setDialogType('error')
+            return;
+        }
+
         myRequest({
                 method: 'post',
                 url: `${myConfig.apiServerAddress}/api/categories`,
@@ -199,9 +230,14 @@ export default function ManageCategories() {
                 setCategories([...categories])
                 setOpenAddDialog(false)
 
+                setDialogMessage("Add category successfully!")
+            setDialogType('success')
+
             },
             function fail(error) {
                 console.log('admin:users: fail to add category')
+                setDialogMessage("Fail to add category")
+            setDialogType('error')
             }
         )
     }
@@ -354,6 +390,9 @@ export default function ManageCategories() {
 
         </DialogActions>
       </Dialog>
+
+              <MyDialog type={dialogType} handleClose={handleMyDialogClose}
+    message={dialogMessage}></MyDialog>
 
 
     </div>

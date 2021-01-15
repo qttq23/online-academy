@@ -2,7 +2,7 @@ import React from 'react';
 import Carousel from "react-material-ui-carousel"
 import autoBind from "auto-bind"
 import '../style/Example.scss';
-
+import { NavLink } from "react-router-dom";
 import {Button, Card, CardContent, CardMedia, Grid, Typography} from '@material-ui/core';
 
 function Banner(props) {
@@ -23,9 +23,12 @@ function Banner(props) {
                     {props.item.Caption}
                 </Typography>
 
+                <NavLink to={`/courseList?fields=categoryId&keyword=${props.item.id}&name=${props.item.Name}`}
+            style={{ textDecoration: "none", color: "#e91e63" }}>
                 <Button variant="outlined" className="ViewButton">
                     View Now
                 </Button>
+                </NavLink>
             </CardContent>
         </Grid>
     )
@@ -81,7 +84,8 @@ const items = [
             {
                 Image: "https://i.pinimg.com/originals/1e/dd/47/1edd4798851736ee98ac2ae083e9ee82.gif"
             }
-        ]
+        ],
+        id: '5fd4e5b74ec3a2471437e2bc'
     },
     {
         Name: "Mobile Development",
@@ -94,11 +98,12 @@ const items = [
             {
                 Image: "https://miro.medium.com/max/1600/1*7mlNL7WE7lHnSAjUmX9AJg.gif"
             }
-        ]
+        ],
+        id: '5fd4e5b74ec3a2471437e2bd'
     },
     {
-        Name: "Decoratives",
-        Caption: "Give style and color to your living room!",
+        Name: "Maths",
+        Caption: "Learn Mathemetics",
         contentPosition: "right",
         Items: [
             {
@@ -107,7 +112,8 @@ const items = [
             {
                 Image: "https://source.unsplash.com/featured/?vase"
             }
-        ]
+        ],
+        id: '5ffdb038482d9f8238313668'
     }
 ]
 

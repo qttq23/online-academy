@@ -18,6 +18,7 @@ import {
     Link,
 } from 'react-router-dom';
 import Chip from '@material-ui/core/Chip';
+import moment from 'moment-timezone';
 
 const TitleStyled = styled.div `
     overflow: hidden;
@@ -139,7 +140,12 @@ export default function MyCourseCard({ item, course, isShowFavoriteButton, isSho
               </Grid>
               <Grid item>
                 <Typography variant="subtitle2" color="textSecondary">
-                  Last accessed - {course.updatedAt}
+                  Last updated: 
+                  {
+                    moment.tz(course.updatedAt, 'Africa/Abidjan')
+                    .clone()
+                    .tz('Asia/Ho_Chi_Minh').format('YYYY-MM-DD HH:mm:ss')
+                  }
                 </Typography>
               </Grid>
             </Grid>

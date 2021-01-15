@@ -92,6 +92,18 @@ export default function Profile() {
         }
         console.log(item)
 
+                // validate
+        if (!oldPassword || oldPassword == '') {
+            setDialogMessage("old password cannot be empty")
+            setDialogType('error')
+            return;
+        }
+        if (!newPassword || newPassword == '') {
+            setDialogMessage("new password cannot be empty")
+            setDialogType('error')
+            return;
+        }
+
 
         myRequest({
                 method: 'post',
@@ -159,6 +171,26 @@ export default function Profile() {
         console.log('profile: name: ', name)
         console.log('profile: email: ', email)
         console.log('profile: description: ', description)
+
+        // validate
+        if (!name || name == '') {
+            setDialogMessage("'Name' cannot be empty")
+            setDialogType('error')
+            return;
+        }
+        if (!email  || email == '') {
+            setDialogMessage('Email cannot be empty')
+            setDialogType('error')
+            return;
+        }
+
+        let re = new RegExp(myConfig.emailPattern)
+        let match = email.match(re)
+        if (!match) {
+            setDialogMessage('Email not valid')
+            setDialogType('error')
+            return;
+        }
 
         function updateAccount() {
 

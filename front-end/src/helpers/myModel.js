@@ -32,11 +32,14 @@ function getAccountInfo(accountId, okCallback, failCallback) {
     )
 }
 
-function registerAccount(account, okCallback, failCallback) {
+function registerAccount(account, accessToken, okCallback, failCallback) {
 
     // add some default values for student account
-    account.type = 2
     account.loginType = 0
+    if (!account.type) {
+        account.type = 2
+
+    }
 
     myRequest({
             method: 'post',
@@ -47,6 +50,9 @@ function registerAccount(account, okCallback, failCallback) {
                 'password': account.password,
                 'type': account.type,
                 'loginType': account.loginType
+            },
+            headers: {
+                'x-access-token': accessToken
             }
         },
         okCallback,
