@@ -1,0 +1,87 @@
+{
+  "_meta": {
+    "sources": [
+      "loopback/common/models",
+      "loopback/server/models",
+      "../common/models",
+      "./models"
+    ],
+    "mixins": [
+      "loopback/common/mixins",
+      "loopback/server/mixins",
+      "../common/mixins",
+      "./mixins"
+    ]
+  },
+  "User": {
+    "dataSource": "db",
+    "public": false
+  },
+  "AccessToken": {
+    "dataSource": "db",
+    "public": false
+  },
+  "ACL": {
+    "dataSource": "db",
+    "public": false
+  },
+  "RoleMapping": {
+    "dataSource": "db",
+    "public": false,
+    "options": {
+      "strictObjectIDCoercion": true
+    }
+  },
+  "Role": {
+    "dataSource": "db",
+    "public": false
+  },
+  "category": {
+    "dataSource": "mongodbDs",
+    "public": true
+  },
+  "course": {
+    "dataSource": "mongodbDs",
+    "public": true
+  },
+  "account": {
+    "dataSource": "mongodbDs",
+    "public": true
+  },
+  "accountCourse": {
+    "dataSource": "mongodbDs",
+    "public": true
+  },
+  "auth": {
+    "dataSource": null,
+    "public": true
+  },
+  "feedback": {
+    "dataSource": "mongodbDs",
+    "public": true
+  },
+  "chapter": {
+    "dataSource": "mongodbDs",
+    "public": true
+  },
+  "video": {
+    "dataSource": "mongodbDs",
+    "public": true
+  },
+  "watchList": {
+    "dataSource": "mongodbDs",
+    "public": true
+  },
+  "seenVideo": {
+    "dataSource": "mongodbDs",
+    "public": true
+  },
+  "myConfig": {
+    "dataSource": null,
+    "public": true
+  },
+  "custom": {
+    "dataSource": null,
+    "public": true
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "name": "account",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true,
+    "updateOnLoad": true
+  },
+  "properties": {
+    "type": {
+      "type": "number",
+      "required": true
+    },
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "email": {
+      "type": "string",
+      "required": true
+    },
+    "password": {
+      "type": "string",
+      "default": ""
+    },
+    "description": {
+      "type": "string",
+      "default": ""
+    },
+    "loginType": {
+      "type": "number",
+      "required": true
+    },
+    "refreshToken": {
+      "type": "string",
+      "default": ""
+    },
+    "imageUrl": {
+      "type": "string",
+      "default": "/image/"
+    },
+    "activeCode": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "validations": [],
+  "relations": {
+    "courses": {
+      "type": "hasMany",
+      "model": "course",
+      "foreignKey": "",
+      "through": "accountCourse"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

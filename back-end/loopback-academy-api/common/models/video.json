@@ -1,0 +1,32 @@
+{
+  "name": "video",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "chapterId": {
+      "type": "string",
+      "required": true
+    },
+    "videoUrl": {
+      "type": "string",
+      "required": true
+    },
+    "order": {
+      "type": "number",
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {
+    "chapter": {
+      "type": "belongsTo",
+      "model": "chapter",
+      "foreignKey": ""
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

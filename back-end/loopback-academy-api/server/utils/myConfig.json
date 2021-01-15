@@ -1,0 +1,13 @@
+{
+  "secretKey": "abcdef",
+  "accessTokenExpireIn": 3600,
+  "refeshKeyLength": 10,
+  "refreshTokenExpireIn": 7200,
+  "sendMessageAfter": 3000,
+  "emailCredentials":
+  {
+    "user": "academyonline584@gmail.com",
+    "pass": "584academyonlineA"
+  },
+  "otpLength": 6
+}
