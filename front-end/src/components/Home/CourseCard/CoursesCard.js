@@ -13,6 +13,8 @@ import myConfig from '../../../helpers/myConfig';
 import {
   Link,
 } from 'react-router-dom';
+import Chip from '@material-ui/core/Chip';
+
 
 const TitleStyled = styled.div`
     overflow: hidden;
@@ -76,20 +78,20 @@ export default function CourseCard({ course, style }) {
 
     price = course.price
     priceAfterSaleOff = price * (1 - course.saleOffPercent)
-    // if(course.saleOffPercent && course.saleOffPercent != 0){
-    //     priceAfterSaleOff = course.saleOffPercent * price
-    // }
 
-
-    price = course.price
-    priceAfterSaleOff = price
-    if (course.saleOffPercent && course.saleOffPercent != 0) {
-      priceAfterSaleOff = course.saleOffPercent * price
-    }
 
 
     imageUrl = course.imageUrl
     id = course.id
+
+
+    // check if course is: new, sale off, significant
+    if(course.saleOffPercent > 0){
+      course.chip = {}
+      course.chip.color = 'secondary'
+      course.chip.label = 'sale off'
+    }
+
   }
 
   return (
@@ -148,7 +150,20 @@ export default function CourseCard({ course, style }) {
                   </Grid>
               }
 
+              {
+                course.chip ? 
+                (
+                  <Chip
+                  size="small"
+                    label={course.chip.label}
+                    color={course.chip.color}
+                  />
+                )
+                : ''
+              }
+              
             </Grid>
+
           </CardContent>
         </CardActionArea>
       </Card>

@@ -98,14 +98,14 @@ const App = ({ location }) => {
           </Grid>
           <Grid item className={classes.main}>
             <Switch>
-              <Route path="/admin/:path?" exact>
+              <Route path="/admin/:path?" >
                 <AdminLayout>
                   <Switch>
                     <Route exact path="/admin/dashboard">
 
                     </Route>
                     
-                    <Route exact path="/admin/users">
+                    <Route exact path="/admin/users/:type">
                       <Users />
                     </Route>
 
@@ -162,6 +162,9 @@ const App = ({ location }) => {
                 <UpdateProfile />
   </Route>*/}
               <Route exact path="/add-course">
+                <AddCourse />
+              </Route>
+              <Route exact path="/courses/:id/edit">
                 <AddCourse />
               </Route>
               <Route path="/">

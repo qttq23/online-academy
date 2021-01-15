@@ -1,23 +1,28 @@
 import React, { Component, useState, useEffect } from 'react';
 import { Grid, Typography, TextField, InputAdornment, MenuItem, Select, Input, Button, Checkbox } from '@material-ui/core';
 import { Editor } from "react-draft-wysiwyg";
-import { EditorState } from 'draft-js';
+import { EditorState, ContentState, convertFromHTML } from 'draft-js';
 import { convertToRaw } from 'draft-js';
 import draftToHtml from 'draftjs-to-html';
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 
 import ImageUpload from './ImageUpload';
 import myModel from '../../helpers/myModel.js'
+import myRequest from '../../helpers/myRequest.js'
 import myConfig from '../../helpers/myConfig.js'
+import MyDialog from '../MyDialog/index.js'
 import store from '../../redux/store.js'
 import {
   Redirect,
-  useRouteMatch
+  useRouteMatch,
+  useParams
 } from 'react-router-dom';
 import firebase from '../../helpers/myFirebase.js'
 
 function AddCourse(props) {
 
+  let { id } = useParams();
+  console.log('addcourse: id: ', id)
 
 
   const [name, setName] = useState('5')
@@ -34,6 +39,62 @@ function AddCourse(props) {
   // let myImage = {}
   const [myImage, setMyImage] = useState({})
   var storage = firebase.storage().ref('');
+  const [editorState, setEditorState] = useState(
+    EditorState.createWithContent(
+        ContentState.createFromBlockArray(
+          convertFromHTML(longDescription)
+        )
+      )
+    )
+
+      const [dialogType, setDialogType] = useState('close')
+    const [dialogMessage, setDialogMessage] = useState('')
+        function handleMyDialogClose() {
+        setDialogType('close')
+    }
+
+
+  useEffect(function(){
+
+    // if(!id) return;
+
+    myRequest({
+      method: 'get',
+      url: `${myConfig.apiServerAddress}/api/custom/Courses/ById/${id}`,
+      params: {}
+    },
+      function ok(response) {
+         
+        let targetCourse = response.data
+
+        // let account = store.getState().account
+        // if(!account || account.id != targetCourse.teacherId){
+        //   setIsRedirect(true)
+        // }
+
+        setName(targetCourse.name)
+        setCategoryId(targetCourse.categoryId)
+        setPrice(targetCourse.price)
+        setSaleOffPercent(targetCourse.saleOffPercent * 100)
+        setShortDescription(targetCourse.shortDescription)
+        setLongDescription(targetCourse.longDescription)
+        setIsCompleted(targetCourse.isCompleted)
+
+        setEditorState(
+          EditorState.createWithContent(
+            ContentState.createFromBlockArray(
+              convertFromHTML(targetCourse.longDescription)
+            )
+          )
+        )
+
+      },
+      function fail(error){
+
+      }
+    )
+
+  }, [])
 
 
   function handleNameChanged(event) {
@@ -66,6 +127,7 @@ function AddCourse(props) {
     // console.log(convertedData)
 
     setLongDescription(convertedData)
+    setEditorState(editorState)
   }
 
   function handleCreateClicked(event) {
@@ -263,6 +325,193 @@ function AddCourse(props) {
     setMyImage(file)
   }
 
+    function handleSaveClicked(event) {
+    event.preventDefault()
+    setDialogType('default')
+
+    console.log('edit course: ')
+    let updateData = {
+      categoryId,
+      name,
+      price,
+      saleOffPercent: saleOffPercent / 100,
+      shortDescription,
+      longDescription,
+      isCompleted
+
+    }
+    console.log(updateData)
+
+    // validate data??.....
+
+    function updateCourse() {
+      let accessToken = localStorage.getItem('accessToken')
+      let refreshToken = localStorage.getItem('refreshToken')
+      myModel.updateCourse(
+        accessToken,
+        id,
+        updateData,
+        function ok(response) {
+
+          let courseId = response.data.id
+          console.log('editcourse: done update database: ', courseId)
+
+          setDialogMessage('Update course successfully!')
+          setDialogType('success')
+          setNewCourseId(courseId)
+
+          // update database ok
+          // then upload image to storage and update database
+          // myModel.getStorageToken(
+          //   localStorage.getItem('accessToken'),
+          //   function ok(response) {
+
+          //     let token = response.data.readToken
+          //     console.log('storage token: ', token)
+          //     authWithFirebase(token,
+          //       function ok() {
+
+          //         console.log('uploading image...: ', myImage)
+          //         uploadImage(
+          //           courseId,
+          //           myImage,
+          //           function ok(downloadUrl) {
+
+          //             console.log('updating database....')
+          //             myModel.updateCourse(
+          //               accessToken,
+          //               courseId,
+          //               {
+          //                 'imageUrl': downloadUrl
+          //               },
+          //               function ok(response) {
+          //                 setNewCourseId(courseId)
+          //               },
+          //               function fail(error) {
+
+          //               }
+          //             )
+
+          //           },
+          //           function fail() {
+          //             console.log('fail to upload image')
+
+          //           }
+          //         )
+          //       },
+          //       function fail(error) {
+
+          //         console.log('fail to authen with firebase')
+          //       })
+          //   },
+          //   function fail(error) {
+          //     console.log('fail to get storage token')
+          //   }
+          // )
+
+
+        },
+        function fail(error) {
+
+          let err = error.response.data.error
+          if (err.name == myConfig.error.name.JWT_EXPIRED) {
+
+            console.log('refreshing token...')
+            myModel.refreshAccessToken({
+              accessToken,
+              refreshToken
+            },
+              function ok(response) {
+
+                // store
+                localStorage.setItem('accessToken', response.data.accessToken)
+
+                console.log('re-update')
+                updateCourse()
+              },
+              function fail(error2) {
+                if (error2.response.status == myConfig.error.status.REFRESH_TOKEN_EXPIRED) {
+
+                  handleReLogin()
+
+                }
+              }
+            )
+
+          } else if (err.name == myConfig.error.name.JWT_ERROR) {
+            handleReLogin()
+          }
+
+        }
+
+      )
+    }
+
+    function authWithFirebase(token, okCallback, failCallback) {
+      firebase.auth().signInWithCustomToken(token)
+        .then((user) => {
+          okCallback()
+        })
+        .catch((error) => {
+          console.log(error)
+          failCallback(error)
+        })
+    }
+
+
+    function uploadImage(courseId, imageFile, okCallback, failCallback) {
+
+      var uploadTask = storage.child(
+        `course/${courseId}/image/` + imageFile.name
+      ).put(imageFile);
+
+      uploadTask.on(firebase.storage.TaskEvent.STATE_CHANGED,
+        function (snapshot) {
+          var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log('Upload is ' + progress + '% done');
+          switch (snapshot.state) {
+            case firebase.storage.TaskState.PAUSED: // or 'paused'
+              console.log('Upload is paused');
+              break;
+            case firebase.storage.TaskState.RUNNING: // or 'running'
+              console.log('Upload is running');
+              break;
+          }
+        },
+        function (error) {
+
+          window.alert(error)
+          switch (error.code) {
+            case 'storage/unauthorized':
+              // User doesn't have permission to access the object
+              break;
+
+            case 'storage/canceled':
+              // User canceled the upload
+              break;
+
+            case 'storage/unknown':
+              // Unknown error occurred, inspect error.serverResponse
+              break;
+          }
+        },
+        function () {
+          console.log('done uploading')
+          uploadTask.snapshot.ref.getDownloadURL().then(function (downloadURL) {
+            console.log('File available at: ' + downloadURL);
+            okCallback(downloadURL)
+          });
+
+        });
+
+
+    }
+
+
+    updateCourse()
+
+  }
+
   useEffect(function () {
     myModel.getCategoryList(
       function ok(response) {
@@ -297,8 +546,15 @@ function AddCourse(props) {
   }
 
 
+
+
   return (
     <Grid container style={{ marginTop: 20 }} row>
+
+            <MyDialog type={dialogType} handleClose={handleMyDialogClose}
+    message={dialogMessage}></MyDialog>
+
+
       <Grid xs={3} />
       <Grid container xs={6} style={{
         display: 'flex',
@@ -306,8 +562,8 @@ function AddCourse(props) {
       }}>
         <Typography variant="h5" color="primary"
           style={{ textAlign: 'center', width: '100%', fontWeight: 'bold' }}>
-          Create Course
-                        </Typography>
+          {id? 'Edit Course' : 'Create Course'}
+        </Typography>
         <Grid container xs={12} style={{ marginTop: 20 }}>
           <Grid container xs={12} style={{
             display: 'flex',
@@ -486,7 +742,7 @@ function AddCourse(props) {
                 wrapperClassName="wrapperClassName"
                 editorClassName="editorClassName"
                 editorStyle={{ maxHeight: 300, height: 300, backgroundColor: '#fff' }}
-                // editorState={longDescription}
+                editorState={editorState}
                 onEditorStateChange={handleEditorChanged}
               />
             </Grid>
@@ -520,10 +776,24 @@ function AddCourse(props) {
             justifyContent: 'flex-end',
             marginTop: 40
           }}>
-            <Button color="primary" variant="contained"
+
+            {
+              id?
+              (
+                 <Button color="primary" variant="contained"
+              onClick={handleSaveClicked}>
+              Save
+            </Button>
+
+              ):
+              (
+               <Button color="primary" variant="contained"
               onClick={handleCreateClicked}>
               Create
-                            </Button>
+            </Button>
+              )
+            }
+            
           </Grid>
         </Grid>
       </Grid>

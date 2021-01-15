@@ -52,7 +52,7 @@ export default function CourseList(props) {
 
   function getCoursesList(pageNumber = 1) {
 
-    let myNumLimit = 4
+    let myNumLimit = 8
     let myNumSkip = (pageNumber - 1) * myNumLimit
     myNumLimit *= pageNumber
 
@@ -122,7 +122,7 @@ export default function CourseList(props) {
     courses.sort(function (a, b) {
       let finalPriceA = a.price * (1 - a.saleOffPercent)
       let finalPriceB = b.price * (1 - b.saleOffPercent)
-      // console.log('sort: ' + finalPriceA + ', ' + finalPriceB)
+      console.log('sort: ' + finalPriceA + ', ' + finalPriceB)
       return order * (finalPriceA - finalPriceB)
     });
     setCourses([...courses])

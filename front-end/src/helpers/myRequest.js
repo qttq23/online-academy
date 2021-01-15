@@ -39,7 +39,7 @@ async function myRequest(config, okCallback, failCallback) {
         console.log('Error setup: ', error.message);
       }
 
-      // failCallback(error)
+      failCallback(error)
     });
 }
 

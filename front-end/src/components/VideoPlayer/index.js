@@ -21,6 +21,7 @@ import {
     useRouteMatch
 } from "react-router-dom";
 import firebase from '../../helpers/myFirebase.js'
+import MyDialog from '../MyDialog/index.js'
 
 
 const useStyles = makeStyles((theme) => ({
@@ -73,9 +74,17 @@ export default function VideoPlayer(props) {
     let { videoId } = useParams();
     var storage = firebase.storage().ref('');
 
+    const [dialogType, setDialogType] = useState('close')
+    const [dialogMessage, setDialogMessage] = useState('')
+    function handleMyDialogClose() {
+        setDialogType('close')
+    }
+
     console.log('videoplayer: create')
 
     useEffect(function() {
+
+        setVideoUrl('')
 
         myRequest({
                 method: 'get',
@@ -111,6 +120,7 @@ export default function VideoPlayer(props) {
 
         if (videoUrl == '') {
 
+
             let accessToken = localStorage.getItem('accessToken')
             myModel.getStorageToken(
                 accessToken,
@@ -126,8 +136,14 @@ export default function VideoPlayer(props) {
 
                                 console.log(url)
                                 setVideoUrl(url)
+
+                                setDialogType('close')
                             }).catch(function(error) {
                                 console.log(error)
+
+                                setVideoUrl('')
+                                setDialogMessage('You have to enroll to this course to watch its videos')
+                                setDialogType('error')
                             });
                         },
                         function fail(error) {
@@ -156,6 +172,11 @@ export default function VideoPlayer(props) {
 
     return (
         <main>
+
+                <MyDialog type={dialogType} handleClose={handleMyDialogClose}
+    message={dialogMessage}></MyDialog>
+
+
       <Container maxWidth="lg">
         <Typography className={classes.home} align="start">
           <Link href={courseLink} style={{ textDecoration: "none", color: "black" }}>
@@ -175,19 +196,26 @@ export default function VideoPlayer(props) {
           </Grid>
         </Grid>
         <div className={classes.video}>
-          <ReactPlayer
-            width='95%'
-            height='95%'
-            controls
-            // url='https://www.youtube.com/watch?v=ysz5S6PUM-U'
-            // url='https://firebasestorage.googleapis.com/v0/b/online-academy-7bd60.appspot.com/o/course%2F5fd4ec944ec3a2471437e2c2%2Fchapter%2F5fd6528de655e020bc479f46%2Ftimlaibautroi.mp4?alt=media&token=3fc628e8-a939-4a21-944b-503e0de586e3'
-            url={videoUrl}
-            onReady={() => console.log('onReady callback')}
-            onStart={() => console.log('onStart callback')}
-            onPause={() => console.log('onPause callback')}
-            onEnded={() => console.log('onEnded callback')}
-            onError={() => console.log('onError callback')}
-          />
+
+            {
+                videoUrl != ''?
+                (
+                    <ReactPlayer
+                    width='95%'
+                    height='95%'
+                    controls
+                    // url='https://www.youtube.com/watch?v=ysz5S6PUM-U'
+                    // url='https://firebasestorage.googleapis.com/v0/b/online-academy-7bd60.appspot.com/o/course%2F5fd4ec944ec3a2471437e2c2%2Fchapter%2F5fd6528de655e020bc479f46%2Ftimlaibautroi.mp4?alt=media&token=3fc628e8-a939-4a21-944b-503e0de586e3'
+                    url={videoUrl}
+                    onReady={() => console.log('onReady callback')}
+                    onStart={() => console.log('onStart callback')}
+                    onPause={() => console.log('onPause callback')}
+                    onEnded={() => console.log('onEnded callback')}
+                    onError={() => console.log('onError callback')}
+                  />
+                ): ''
+            }
+
         </div>
         <Grid container spacing={2} justify="center">
           <Grid item>

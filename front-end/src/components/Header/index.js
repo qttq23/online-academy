@@ -171,22 +171,24 @@ const Header = () => {
           </Grid>
           <Grid item md={6}>
             <Hidden only={["sm", "xs"]}>
-              <div className={classes.search}>
-                <div className={classes.searchIcon}>
-                  <SearchIcon style={{ color: "#e91e63" }} />
-                </div>
-                <InputBase
-                  placeholder="Search…"
-                  style={{
-                    width: "100%"
-                  }}
-                  classes={{
-                    root: classes.inputRoot,
-                    input: classes.inputInput,
-                  }}
-                  inputProps={{ 'aria-label': 'search' }}
-                />
-              </div>
+              <TextField
+                                className={classes.textField}
+                                placeholder="What do you want to learn?"
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment onClick={handleSearchClicked}>
+                                            <IconButton>
+                                                <SearchIcon />
+                                            </IconButton>
+                                        </InputAdornment>
+                                    ),
+                                    classes: {
+                                        input: classes.resize,
+                                    },
+                                }}
+                                value={keyword}
+                                onChange={handleKeywordChanged}
+                            />
             </Hidden>
           </Grid>
           <Grid item md={1}>
@@ -323,7 +325,7 @@ const Header = () => {
           }
 
         </Toolbar>
-      </AppBar>
+      </AppBar> { redirectUrl != '' ? (<Redirect to={redirectUrl} />) : '' } 
     </Grid>
   )
 }

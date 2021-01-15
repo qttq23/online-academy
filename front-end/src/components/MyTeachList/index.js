@@ -86,7 +86,7 @@ export default function MyTeachList() {
       <Container className={classes.cardGrid} maxWidth="md">
         <Grid container spacing={2}>
           {teachList.map((course) => (
-            <MyCourseCard key={course.title} course={course} />
+            <MyCourseCard key={course.title} course={course} isShowEditButton={true}/>
           ))}
         </Grid>
       </Container>

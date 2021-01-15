@@ -17,7 +17,7 @@ import myConfig from '../../../helpers/myConfig';
 import {
     Link,
 } from 'react-router-dom';
-
+import Chip from '@material-ui/core/Chip';
 
 const TitleStyled = styled.div `
     overflow: hidden;
@@ -60,7 +60,7 @@ const useStyles = makeStyles({
     },
 });
 
-export default function MyCourseCard({ item, course, isShowFavoriteButton }) {
+export default function MyCourseCard({ item, course, isShowFavoriteButton, isShowEditButton }) {
     const classes = useStyles();
     // const { course } = props;
     const preventDefault = (event) => event.preventDefault();
@@ -110,6 +110,20 @@ export default function MyCourseCard({ item, course, isShowFavoriteButton }) {
                 <TitleStyled>
                   {course.name}
                 </TitleStyled>
+
+                {
+                  course.isCompleted ? 
+                  (
+                    <Chip
+                  size="small"
+                    label='completed'
+                    color='primary'
+                  />
+
+                  ): ''
+                }
+                
+
               </Link>
             </Typography>
             <Grid container direction="row" style={{ marginTop: 10 }}>
@@ -148,6 +162,19 @@ export default function MyCourseCard({ item, course, isShowFavoriteButton }) {
               Remove
             </Button>)
                 : ''
+              }
+
+              {
+                isShowEditButton?
+                (
+                  <Link to={`/courses/${course.id}/edit`}>
+                  <Button variant="contained" color="secondary" className={classes.removeButton} 
+                        style={{ marginTop: 10, marginLeft: 10 }}
+                        >
+                    Edit
+                  </Button>
+                  </Link>
+                 ):''
               }
 
           </CardContent>

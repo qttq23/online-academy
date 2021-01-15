@@ -2,7 +2,11 @@ import { createStore } from 'redux';
 
 
 const initState = {
+    mostRegisteredCourses: [],
     mostViewedCourses: [],
+    newestCourses: [],
+    mostRegisteredCategories: [],
+
     detailedCourse: null,
     feedbacks: [],
     relatedCourses: [],
@@ -25,6 +29,25 @@ const reducer = function(state, { type, payload }) {
                 ...state,
                 mostViewedCourses: [...payload.data]
             }
+        case 'set_newestCourses':
+            console.log('store.js: set_newestCourses: ', payload)
+            return {
+                ...state,
+                newestCourses: [...payload.data]
+            }
+        case 'set_mostRegisteredCourses':
+            console.log('store.js: set_mostRegisteredCourses: ', payload)
+            return {
+                ...state,
+                mostRegisteredCourses: [...payload.data]
+            }
+        case 'set_mostRegisteredCategories':
+            console.log('store.js: set_mostRegisteredCategories: ', payload)
+            return {
+                ...state,
+                mostRegisteredCategories: [...payload.data]
+            }
+
         case 'set_detailedCourse':
             console.log('store.js: set_detailedCourse: ', payload)
             return {

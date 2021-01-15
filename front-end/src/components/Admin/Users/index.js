@@ -26,6 +26,11 @@ import myRequest from "../../../helpers/myRequest";
 import myConfig from '../../../helpers/myConfig';
 import myModel from '../../../helpers/myModel';
 import store from '../../../redux/store'
+import {
+  Redirect,
+  useRouteMatch,
+  useParams
+} from 'react-router-dom';
 
 //WIP 
 String.prototype.capitalize = function() {
@@ -61,7 +66,14 @@ const columns = [
 //     { id: 2, email: "123@gmail.com", fullname: "abc", role: "STUDENT", banned: 'true' },
 // ];
 
-export default function DataTable() {
+export default function DataTable(props) {
+
+      let { type } = useParams();
+      let inputTypeValue = 2 // student
+      if(type == 'teacher'){
+          inputTypeValue = 1
+      }
+
     const [limit, setLimit] = useState(10);
     const [page, setPage] = useState(0);
     const handleLimitChange = (event) => {
@@ -81,6 +93,9 @@ export default function DataTable() {
         myRequest({
                 method: 'get',
                 url: `${myConfig.apiServerAddress}/api/accounts`,
+                params: {
+                    filter: `{"where": {"type": ${inputTypeValue}}}`
+                }
             },
             function ok(response) {
 
@@ -91,7 +106,7 @@ export default function DataTable() {
             }
         )
 
-    }, []);
+    }, [type]);
 
     const [open, setOpen] = useState(false)
     const [roleValue, setRoleValue] = useState(2)

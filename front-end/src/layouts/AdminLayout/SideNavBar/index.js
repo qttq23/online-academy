@@ -30,9 +30,14 @@ const items = [
     title: "Dashboard",
   },
   {
-    href: "/admin/users",
+    href: "/admin/users/student",
     icon: PeopleAltIcon,
-    title: "Users",
+    title: "Students",
+  },
+  {
+    href: "/admin/users/teacher",
+    icon: PeopleAltIcon,
+    title: "Teachers",
   },
   {
     href: "/admin/courses",

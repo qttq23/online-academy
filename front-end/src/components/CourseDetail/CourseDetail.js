@@ -318,10 +318,7 @@ const CourseDetail = (props) => {
     })
 
     price = course.price
-    priceAfterSaleOff = price
-    if (course.saleOffPercent && course.saleOffPercent !== 0) {
-      priceAfterSaleOff = course.saleOffPercent * price
-    }
+    priceAfterSaleOff = price * (1 - course.saleOffPercent)
 
     imageUrl = course.imageUrl
     courseId = course.id

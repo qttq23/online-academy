@@ -12,14 +12,15 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-
+import Backdrop from '@material-ui/core/Backdrop';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 import myModel from '../../helpers/myModel'
 import {
     Redirect,
 } from 'react-router-dom';
 import store from '../../redux/store'
-
+import MyDialog from '../MyDialog/index.js'
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -38,6 +39,10 @@ const useStyles = makeStyles((theme) => ({
     },
     submit: {
         margin: theme.spacing(3, 0, 2),
+    },
+    backdrop: {
+        zIndex: theme.zIndex.drawer + 1,
+        color: '#fff',
     },
 }));
 
@@ -58,6 +63,8 @@ export default function SignIn(props) {
     }
 
     function handleSubmitClicked(event) {
+
+        setDialogType('default')
 
         // prevent default submit event
         event.preventDefault()
@@ -95,6 +102,7 @@ export default function SignIn(props) {
                     },
                     function fail(error) {
                         // ??.......
+
                     }
                 )
 
@@ -102,7 +110,9 @@ export default function SignIn(props) {
             },
             function fail(error) {
                 console.log('login: fail: ', error)
-                alert(error)
+                // alert(error)
+                setDialogMessage('Login failed! Please try again')
+                setDialogType('error')
                 // handle error??
                 // ........................
                 event.target.disabled = false
@@ -110,6 +120,13 @@ export default function SignIn(props) {
         )
 
     }
+
+    const [dialogType, setDialogType] = useState('close')
+    const [dialogMessage, setDialogMessage] = useState('')
+    function handleDialogClose(){
+    	setDialogType('close')
+    }
+
 
 
     // render
@@ -194,6 +211,11 @@ export default function SignIn(props) {
             </div>
             <Box mt={8}>
             </Box>
+
+            <MyDialog type={dialogType} handleClose={handleDialogClose}
+             message={dialogMessage}></MyDialog>
+            
+            
         </Container>
     );
 }
