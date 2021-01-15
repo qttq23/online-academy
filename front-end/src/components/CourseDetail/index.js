@@ -60,6 +60,11 @@ import MyDialog from '../MyDialog/index.js'
 import Chip from '@material-ui/core/Chip';
 import { NavLink } from "react-router-dom";
 
+import Accordion from '@material-ui/core/Accordion';
+import AccordionSummary from '@material-ui/core/AccordionSummary';
+import AccordionDetails from '@material-ui/core/AccordionDetails';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+
 import moment from 'moment-timezone';
 
 const useStyles = makeStyles((theme) => ({
@@ -67,6 +72,10 @@ const useStyles = makeStyles((theme) => ({
         zIndex: theme.zIndex.drawer + 1,
         color: '#fff',
     },
+    heading: {
+    fontSize: theme.typography.pxToRem(15),
+    fontWeight: theme.typography.fontWeightRegular,
+  },
 }));
 
 
@@ -494,6 +503,7 @@ function CourseDetail(props) {
             function ok(response) {
 
                 alert(`${course.name} was bought successfully!`)
+                setAuthorize(authorize_value.STUDENT_OF_COURSE)
 
             },
             function fail(error) {
@@ -507,6 +517,16 @@ function CourseDetail(props) {
 
     // get data
     useEffect(() => {
+
+        myRequest({
+                method: 'post',
+                url: `${myConfig.apiServerAddress}/api/custom/Courses/${id}/view`,
+            },
+            function ok(response) {
+
+                console.log('coursedetail: posted num view')
+            },
+        )
 
         myRequest({
                 method: 'get',
@@ -601,6 +621,7 @@ function CourseDetail(props) {
     let imageUrl = myConfig.defaultImageUrl
     let courseId = ''
     let updatedAt = '0/0/0'
+    let numView = 0
     if (course) {
 
         category = `${course.category.topic}/${course.category.name}`
@@ -611,6 +632,8 @@ function CourseDetail(props) {
 
             ratePoint = Math.round(ratePoint * 100) / 100
         }
+
+        numView = course.numView
 
 
         price = course.price
@@ -702,12 +725,13 @@ function CourseDetail(props) {
               <Typography
                 variant="subtitle1"
                 style={{
-                  color: 'white',
+                  color: 'red',
                   fontSize: 18,
                   marginTop: 10
                 }}>
                 {course ? `${course.category.topic}/${course.category.name}` : 'loading...'}
               </Typography>
+              {/*</NavLink>*/}
 
               <Typography
                 variant="subtitle1"
@@ -727,7 +751,7 @@ function CourseDetail(props) {
                 marginBottom: 5
               }}>
                 <Typography variant="subtitle2" style={{ color: 'gold', marginRight: 10 }}>
-                  {ratePoint}
+                  {ratePoint} rate point(s), {numView} views
                 </Typography>
                 <Rating value={Math.round(ratePoint)} readOnly size="small" style={{ paddingTop: 2, paddingBottom: 2 }} />
               </Grid>
@@ -807,27 +831,37 @@ function CourseDetail(props) {
             }}
           >Course content</Typography>
 
-          <Typography variant="caption" style={{ marginTop: 30, marginBottom: 5, color: 'grey' }}>
+         {/* <Typography variant="caption" style={{ marginTop: 30, marginBottom: 5, color: 'grey' }}>
             23 videos
-            </Typography>
+            </Typography>*/}
           <Paper style={{ color: 'black' }} variant="outlined">
-            <List>
+         
               {
                 chapters.map(function (chapter) {
 
                   return (
-                    <ListItem>
-                      {chapter.name}
-                      <List>
+                    <Accordion>
+                    <AccordionSummary
+                      expandIcon={<ExpandMoreIcon />}
+                      aria-controls="panel1a-content"
+                      id="panel1a-header"
+                    >
+                      <Typography className={classes.heading}>{chapter.name}</Typography>
+                    </AccordionSummary>
+                      
+                      <AccordionDetails>
+                      <Grid container className={classes.root} spacing={2}>
                         {
                           chapter.videos.map(function (video) {
 
                             return (
-                              <ListItem>
+                                
+                                <Grid item xs={12}>
                                 <VideoTile
                                   videoTitle={video.description}
-                                  videoTime="new"
+                                  videoTime=""
                                   videoId={video.id} />
+                                
 
                                 {
                                   authorize == authorize_value.GUEST 
@@ -843,12 +877,15 @@ function CourseDetail(props) {
                                   ): ''
 
                                 }
-                              </ListItem>
+                                </Grid>
+                               
+                   
                             )
 
                           })
                         }
-                      </List>
+                        </Grid>
+                      </AccordionDetails>
 
                       {
                         authorize == authorize_value.TEACHER_OF_COURSE ?
@@ -860,11 +897,11 @@ function CourseDetail(props) {
                       }
 
 
-                    </ListItem>
+                    </Accordion>
                   )
                 })
               }
-            </List>
+      
 
             {
               authorize == authorize_value.TEACHER_OF_COURSE ?
@@ -878,7 +915,8 @@ function CourseDetail(props) {
           <Typography
             variant="h5"
             style={{
-              fontWeight: 'bold'
+              fontWeight: 'bold',
+              marginTop: 20
             }}
           >Description</Typography>
           <Typography variant="p" style={{ marginTop: 20 }}>

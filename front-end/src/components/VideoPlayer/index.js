@@ -153,6 +153,21 @@ export default function VideoPlayer(props) {
                 },
                 function fail(error) {
                     console.log('fail to get storage token')
+
+                    console.log('getting url without token: ', video.videoUrl)
+                            storage.child(video.videoUrl).getDownloadURL().then(function(url) {
+
+                                console.log(url)
+                                setVideoUrl(url)
+
+                                setDialogType('close')
+                            }).catch(function(error) {
+                                console.log(error)
+
+                                setVideoUrl('')
+                                setDialogMessage('You have to enroll to this course to watch its videos')
+                                setDialogType('error')
+                            });
                 }
             )
 
